@@ -89,3 +89,25 @@ header.top{background:rgba(246,247,251,.7);backdrop-filter:blur(22px) saturate(1
 
 .steps li h3{margin:0}.docs article ul{padding-left:1.2em}html{scroll-padding-top:84px}
 .docs article{min-width:0}.steps li{grid-template-columns:44px minmax(0,1fr)}
+
+/* Motion layer: hero background, scroll story, Lenis */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:hidden}
+.herowrap{position:relative;overflow:hidden}
+.herowrap .wrap{position:relative}
+.hero-bg{position:absolute;inset:0;pointer-events:none;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
+.hero-bg canvas{display:block;width:100%;height:100%}
+.story{padding:0}
+.story-pin{min-height:100dvh;display:flex;align-items:center;padding:72px 0 40px}
+.story-grid{display:grid;grid-template-columns:5fr 7fr;gap:48px;align-items:center;width:100%}
+.tv{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#000;box-shadow:0 40px 80px -36px rgba(27,35,64,.45)}
+.tv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0}
+.tv img.base{opacity:1}
+.story .line{margin-bottom:28px}
+.story .line p{color:var(--dim);margin:12px 0 0;max-width:30em}
+.story .lines{position:relative}
+.story-on .lines{min-height:210px}
+.story-on .line{position:absolute;left:0;right:0;top:0;margin:0;opacity:0}
+.story-on .tv img{opacity:0}
+@media(max-width:860px){.story-grid{grid-template-columns:1fr;gap:28px}.story-pin{align-items:flex-start;padding-top:96px}.tv{order:-1}.story-on .lines{min-height:190px}}
