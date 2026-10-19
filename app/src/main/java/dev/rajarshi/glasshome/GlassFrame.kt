@@ -43,7 +43,8 @@ class GlassFrame @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = 
     override fun onDetachedFromWindow() { Wallpapers.detach(this); super.onDetachedFromWindow() }
 
     override fun onSizeChanged(w: Int, h: Int, ow: Int, oh: Int) {
-        radius = minOf(22f * density, h / 2f) // small pills become true capsules
+        // small pills become true capsules; a full-width surface (the All Apps screen) is square
+        radius = if (w >= resources.displayMetrics.widthPixels) 0f else minOf(22f * density, h / 2f)
         val inset = rim.strokeWidth / 2
         rect.set(inset, inset, w - inset, h - inset)
         path.reset()

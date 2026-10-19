@@ -50,60 +50,81 @@
                 android:textSize="26sp" />
         </LinearLayout>
 
-        <!-- Time + profile pill. Focusable only in full-screen mode (Up from the shelf, then Up again). -->
-        <dev.rajarshi.glasshome.GlassFrame
+        <!-- Assistant bubble + time/profile pill, top right. -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|end"
-            android:padding="3dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:id="@+id/btnProfile"
+            <dev.rajarshi.glasshome.GlassFrame
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/dock_btn"
-                android:clickable="true"
-                android:focusable="false"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingTop="4dp"
-                android:paddingEnd="5dp"
-                android:paddingBottom="4dp">
+                android:layout_marginEnd="10dp"
+                android:padding="3dp">
 
-                <TextClock
+                <ImageView
+                    android:id="@+id/btnAssistant"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:contentDescription="Google Assistant"
+                    android:focusable="true"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_assistant" />
+            </dev.rajarshi.glasshome.GlassFrame>
+
+    <dev.rajarshi.glasshome.GlassFrame
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="3dp">
+    
+                <LinearLayout
+                    android:id="@+id/btnProfile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
-                    android:format12Hour="h:mm a"
-                    android:format24Hour="HH:mm"
-                    android:textColor="#FFFFFFFF"
-                    android:textSize="14sp" />
-
-                <FrameLayout
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginStart="12dp">
-
-                    <TextView
-                        android:id="@+id/avatarInitial"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/avatar_bg"
+                    android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="5dp"
+                    android:paddingBottom="4dp">
+    
+                    <TextClock
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
-                        android:gravity="center"
+                        android:format12Hour="h:mm a"
+                        android:format24Hour="HH:mm"
                         android:textColor="#FFFFFFFF"
-                        android:textSize="13sp" />
-
-                    <ImageView
-                        android:id="@+id/avatar"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:visibility="gone" />
-                </FrameLayout>
-            </LinearLayout>
-        </dev.rajarshi.glasshome.GlassFrame>
+                        android:textSize="14sp" />
+    
+                    <FrameLayout
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginStart="12dp">
+    
+                        <TextView
+                            android:id="@+id/avatarInitial"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/avatar_bg"
+                            android:fontFamily="sans-serif-medium"
+                            android:gravity="center"
+                            android:textColor="#FFFFFFFF"
+                            android:textSize="13sp" />
+    
+                        <ImageView
+                            android:id="@+id/avatar"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone" />
+                    </FrameLayout>
+                </LinearLayout>
+            </dev.rajarshi.glasshome.GlassFrame>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/bottom"
@@ -126,7 +147,7 @@
                 android:gravity="center"
                 android:shadowColor="#B30B0F14"
                 android:shadowRadius="8"
-                android:text="@string/hint_fullscreen"
+                android:text="@string/hint_all_apps"
                 android:textColor="#FFFFFFFF"
                 android:textSize="12sp" />
 
@@ -157,13 +178,14 @@
                     android:layout_height="106dp"
                     android:clipChildren="false"
                     android:clipToPadding="false"
+                    android:paddingStart="7dp"
                     android:paddingTop="6dp"
                     android:paddingBottom="6dp" />
             </dev.rajarshi.glasshome.GlassFrame>
         </LinearLayout>
     </FrameLayout>
 
-    <!-- All Apps sheet: slides up from the shelf, goes back down on Back. -->
+    <!-- All Apps: full-screen glass; pinned apps in a dark strip on top, everything else below. -->
     <FrameLayout
         android:id="@+id/sheet"
         android:layout_width="match_parent"
@@ -174,35 +196,79 @@
             android:id="@+id/sheetGlass"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="24dp"
-            android:clipChildren="false"
-            android:paddingStart="12dp"
-            android:paddingTop="18dp"
-            android:paddingEnd="12dp">
+            android:clipChildren="false">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:fontFamily="sans-serif-medium"
-                android:letterSpacing="0.18"
-                android:text="@string/all_apps"
-                android:textAllCaps="true"
-                android:textColor="#D9FFFFFF"
-                android:textSize="11sp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvGrid"
+            <!-- Deeper tint than the shelf: this is a whole screen of glass. -->
+            <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="22dp"
+                android:background="#730B0F14" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp"
-                android:paddingBottom="24dp" />
+                android:orientation="vertical"
+                android:paddingStart="48dp"
+                android:paddingTop="27dp"
+                android:paddingEnd="48dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.18"
+                        android:text="@string/all_apps"
+                        android:textAllCaps="true"
+                        android:textColor="#D9FFFFFF"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/pin_hint"
+                        android:textColor="#99FFFFFF"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/strip_bg"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:padding="10dp">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvPinned"
+                        android:layout_width="match_parent"
+                        android:layout_height="95dp"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:paddingStart="7dp" />
+                </FrameLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvGrid"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="14dp"
+                    android:layout_weight="1"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:paddingStart="10dp"
+                    android:paddingBottom="27dp" />
+            </LinearLayout>
         </dev.rajarshi.glasshome.GlassFrame>
     </FrameLayout>
 </FrameLayout>

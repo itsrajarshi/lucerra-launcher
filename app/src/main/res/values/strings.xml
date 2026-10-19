@@ -7,7 +7,14 @@
     <string name="good_morning">GOOD MORNING</string>
     <string name="good_afternoon">GOOD AFTERNOON</string>
     <string name="good_evening">GOOD EVENING</string>
-    <string name="hint_fullscreen">Press up for full screen</string>
+    <string name="hint_all_apps">Press up for all apps</string>
+    <string name="pin_hint">Hold OK to pin, or to move or remove a favourite</string>
+    <string name="pinned">Pinned to Home</string>
+    <string name="unpinned">Removed from Home</string>
+    <string name="pins_full">Home is full: unpin one first</string>
     <string name="effects_full">Effects: full</string>
     <string name="effects_reduced">Effects: reduced</string>
+    <string name="move_left">Move left</string>
+    <string name="move_right">Move right</string>
+    <string name="remove_from_home">Remove from Home</string>
 </resources>

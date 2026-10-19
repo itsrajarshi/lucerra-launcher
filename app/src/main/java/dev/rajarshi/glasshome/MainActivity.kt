@@ -1,23 +1,33 @@
 package dev.rajarshi.glasshome
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
+import android.graphics.BitmapFactory
+import android.graphics.Outline
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewOutlineProvider
+import android.view.animation.DecelerateInterpolator
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.Calendar
 
@@ -26,18 +36,14 @@ class MainActivity : Activity() {
     private lateinit var sheet: View
     private lateinit var sheetGlass: View
     private lateinit var rvDock: RecyclerView
+    private lateinit var rvPinned: RecyclerView
     private lateinit var rvGrid: RecyclerView
     private lateinit var appName: TextView
     private lateinit var greeting: TextView
 
-    private lateinit var bottom: View
-    private lateinit var hint: View
-    private lateinit var btnProfile: View
-    private lateinit var prefs: android.content.SharedPreferences
-
+    private var pinnedItems = emptyList<AppItem>()
+    private var otherItems = emptyList<AppItem>()
     private var sheetOpen = false
-    private var fullScreen = false
-    private var shelfPos = 0
     private var sheetSpring: SpringAnimation? = null
     private val handler = Handler(Looper.getMainLooper())
     private val rotate = object : Runnable {
@@ -62,7 +68,8 @@ class MainActivity : Activity() {
         super.onCreate(state)
         setContentView(R.layout.activity_main)
 
-        prefs = getSharedPreferences("prefs", MODE_PRIVATE)
+        // Effects reduce automatically when the system animations are off (opaque panels, no motion).
+        val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
         val animationsOff = Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
         Fx.reduced = prefs.getBoolean("reduced", animationsOff)
 
@@ -70,36 +77,18 @@ class MainActivity : Activity() {
         sheet = findViewById(R.id.sheet)
         sheetGlass = findViewById(R.id.sheetGlass)
         rvDock = findViewById(R.id.rvDock)
+        rvPinned = findViewById(R.id.rvPinned)
         rvGrid = findViewById(R.id.rvGrid)
         appName = findViewById(R.id.appName)
         greeting = findViewById(R.id.greeting)
 
         rvDock.layoutManager = CenterLayoutManager(this)
+        rvPinned.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         rvGrid.layoutManager = GridLayoutManager(this, 5)
-        rvDock.itemAnimator = null
-        rvGrid.itemAnimator = null
+        listOf(rvDock, rvPinned, rvGrid).forEach { it.itemAnimator = null }
 
-        bottom = findViewById(R.id.bottom)
-        hint = findViewById(R.id.hint)
-        hint.visibility = if (prefs.getInt("fsUses", 0) < 3) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.btnAssistant).setOnClickListener { launchAssistant() }
         loadProfile()
-
-        btnProfile = findViewById<View>(R.id.btnProfile).apply {
-            bind { open(Intent(Settings.ACTION_SETTINGS)) }
-            // Long-press toggles effects: opaque panels and no motion. Auto-on if system animations are off.
-            setOnLongClickListener {
-                Fx.reduced = !Fx.reduced
-                prefs.edit().putBoolean("reduced", Fx.reduced).apply()
-                Toast.makeText(
-                    this@MainActivity,
-                    if (Fx.reduced) R.string.effects_reduced else R.string.effects_full,
-                    Toast.LENGTH_SHORT,
-                ).show()
-                window.decorView.invalidate()
-                true
-            }
-        }
-
         Wallpapers.init(this)
         Wallpapers.next(animate = false)
         updateGreeting()
@@ -110,14 +99,14 @@ class MainActivity : Activity() {
     private fun loadProfile() {
         findViewById<TextView>(R.id.avatarInitial).text = getString(R.string.profile_initial)
         try {
-            val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            assets.open("profile.jpg").use { android.graphics.BitmapFactory.decodeStream(it, null, bounds) }
-            val opts = android.graphics.BitmapFactory.Options().apply { inSampleSize = maxOf(1, bounds.outWidth / 128) }
-            val bmp = assets.open("profile.jpg").use { android.graphics.BitmapFactory.decodeStream(it, null, opts) } ?: return
-            findViewById<android.widget.ImageView>(R.id.avatar).apply {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            assets.open("profile.jpg").use { BitmapFactory.decodeStream(it, null, bounds) }
+            val opts = BitmapFactory.Options().apply { inSampleSize = maxOf(1, bounds.outWidth / 128) }
+            val bmp = assets.open("profile.jpg").use { BitmapFactory.decodeStream(it, null, opts) } ?: return
+            findViewById<ImageView>(R.id.avatar).apply {
                 setImageBitmap(bmp)
-                outlineProvider = object : android.view.ViewOutlineProvider() {
-                    override fun getOutline(v: View, o: android.graphics.Outline) = o.setOval(0, 0, v.width, v.height)
+                outlineProvider = object : ViewOutlineProvider() {
+                    override fun getOutline(v: View, o: Outline) = o.setOval(0, 0, v.width, v.height)
                 }
                 clipToOutline = true
                 visibility = View.VISIBLE
@@ -127,58 +116,18 @@ class MainActivity : Activity() {
         }
     }
 
-    // --- Full screen: wallpaper only; the shelf slides away ---------------------------------
-
-    private fun enterFullScreen() {
-        if (fullScreen) return
-        fullScreen = true
-        prefs.edit().putInt("fsUses", prefs.getInt("fsUses", 0) + 1).apply()
-        shelfPos = rvDock.findContainingViewHolder(currentFocus ?: rvDock)?.adapterPosition?.takeIf { it >= 0 } ?: shelfPos
-        (bottom as ViewGroup).descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-        bottom.clearFocus()
-        btnProfile.isFocusable = false
-        val dy = bottom.height.toFloat()
-        if (Fx.reduced) { bottom.alpha = 0f; bottom.visibility = View.INVISIBLE; return }
-        bottom.animate().translationY(dy).alpha(0f).setDuration(320)
-            .setInterpolator(android.view.animation.DecelerateInterpolator(1.6f))
-            .withEndAction { if (fullScreen) bottom.visibility = View.INVISIBLE }.start()
-    }
-
-    private fun exitFullScreen() {
-        if (!fullScreen) return
-        fullScreen = false
-        btnProfile.isFocusable = false
-        bottom.visibility = View.VISIBLE
-        (bottom as ViewGroup).descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
-        if (Fx.reduced) { bottom.alpha = 1f; bottom.translationY = 0f }
-        else bottom.animate().translationY(0f).alpha(1f).setDuration(320)
-            .setInterpolator(android.view.animation.DecelerateInterpolator(1.6f)).start()
-        if (prefs.getInt("fsUses", 0) >= 3) hint.visibility = View.GONE
-        focusShelf(shelfPos)
-    }
-
-    /** Up from the shelf enters full screen; Up again reaches the profile pill; Down or Back returns. */
-    override fun dispatchKeyEvent(e: android.view.KeyEvent): Boolean {
-        if (e.action == android.view.KeyEvent.ACTION_DOWN && !sheetOpen) {
+    /** Up from the shelf opens All Apps. */
+    override fun dispatchKeyEvent(e: KeyEvent): Boolean {
+        if (e.action == KeyEvent.ACTION_DOWN && e.keyCode == KeyEvent.KEYCODE_DPAD_UP && !sheetOpen) {
             val focus = currentFocus
-            when (e.keyCode) {
-                android.view.KeyEvent.KEYCODE_DPAD_UP -> when {
-                    !fullScreen && focus != null && rvDock.findContainingItemView(focus) != null -> { enterFullScreen(); return true }
-                    fullScreen -> { btnProfile.isFocusable = true; btnProfile.requestFocus(); return true }
-                }
-                android.view.KeyEvent.KEYCODE_DPAD_DOWN -> if (fullScreen) { exitFullScreen(); return true }
-                android.view.KeyEvent.KEYCODE_DPAD_CENTER, android.view.KeyEvent.KEYCODE_ENTER ->
-                    if (fullScreen && focus !== btnProfile) { exitFullScreen(); return true }
-            }
+            if (focus != null && rvDock.findContainingItemView(focus) != null) { openSheet(); return true }
         }
+        // The remote's grid button (left of the home button) opens All Apps from anywhere.
+        if (e.action == KeyEvent.ACTION_DOWN && e.keyCode == KeyEvent.KEYCODE_ALL_APPS) { openSheet(); return true }
         return super.dispatchKeyEvent(e)
     }
 
-    private fun View.bind(action: () -> Unit) {
-        val spring = FocusSpring(this, focusedScale = 1.06f, lift = 0f)
-        setOnFocusChangeListener { _, focused -> spring.onFocus(focused) }
-        setOnClickListener { action() }
-    }
+    private fun launchAssistant() = open(Intent(Intent.ACTION_ASSIST))
 
     private fun updateGreeting() {
         val h = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
@@ -193,14 +142,56 @@ class MainActivity : Activity() {
 
     private fun reload() {
         val lists = AppRepository.load(this)
-        val allTile = AppItem(getString(R.string.all_apps), AppRepository.ALL_PKG, Intent())
-        val shelf = lists.favorites.ifEmpty { lists.all.take(5) } + allTile
+        pinnedItems = lists.pinned
+        otherItems = lists.others
 
-        rvDock.adapter = AppAdapter(shelf, nameAbove = true, onFocus = ::showName, onClick = { app ->
-            if (app.pkg == AppRepository.ALL_PKG) openSheet() else open(app.launch)
-        })
-        rvGrid.adapter = AppAdapter(lists.all, nameAbove = false, onClick = { open(it.launch) })
-        focusShelf(0)
+        rvDock.adapter = AppAdapter(pinnedItems, nameAbove = true, onFocus = ::showName, onLongClick = ::pinMenu, onClick = { open(it.launch) })
+        rvPinned.adapter = AppAdapter(pinnedItems, nameAbove = false, onLongClick = ::pinMenu, onClick = { open(it.launch) })
+        rvGrid.adapter = AppAdapter(otherItems, nameAbove = false, onLongClick = ::togglePin, onClick = { open(it.launch) })
+        if (pinnedItems.isEmpty()) appName.text = ""
+        if (!sheetOpen) focusShelf(0)
+    }
+
+    /** Hold OK on any tile in All Apps. */
+    private fun togglePin(app: AppItem) {
+        val msg = when (AppRepository.togglePin(this, app.pkg)) {
+            PinResult.PINNED -> R.string.pinned
+            PinResult.UNPINNED -> R.string.unpinned
+            PinResult.FULL -> R.string.pins_full
+        }
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+        reload()
+        focusApp(app.pkg)
+    }
+
+    /** Hold OK on a favourite: move it along the shelf, or take it off Home. */
+    private fun pinMenu(app: AppItem) {
+        val i = pinnedItems.indexOfFirst { it.pkg == app.pkg }
+        val d = Dialog(this)
+        d.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        d.setContentView(R.layout.dialog_pin_menu)
+        d.findViewById<TextView>(R.id.menuTitle).text = app.label
+        fun row(id: Int, enabled: Boolean, act: () -> Unit) = d.findViewById<View>(id).apply {
+            if (!enabled) { visibility = View.GONE; return@apply }
+            setOnClickListener { d.dismiss(); act(); reload(); focusApp(app.pkg) }
+        }
+        row(R.id.menuLeft, i > 0) { AppRepository.movePin(this, app.pkg, -1) }
+        row(R.id.menuRight, i < pinnedItems.size - 1) { AppRepository.movePin(this, app.pkg, 1) }
+        row(R.id.menuRemove, true) { AppRepository.togglePin(this, app.pkg) }
+        d.show()
+        d.findViewById<View>(if (i > 0) R.id.menuLeft else if (i < pinnedItems.size - 1) R.id.menuRight else R.id.menuRemove).requestFocus()
+    }
+
+    private fun focusApp(pkg: String) {
+        val pi = pinnedItems.indexOfFirst { it.pkg == pkg }
+        if (!sheetOpen) { if (pi >= 0) focusShelf(pi) else focusShelf(0); return }
+        val rv = if (pi >= 0) rvPinned else rvGrid
+        val pos = if (pi >= 0) pi else otherItems.indexOfFirst { it.pkg == pkg }
+        if (pos < 0) return
+        rv.post {
+            rv.scrollToPosition(pos)
+            rv.post { rv.findViewHolderForAdapterPosition(pos)?.itemView?.requestFocus() }
+        }
     }
 
     private fun showName(app: AppItem) {
@@ -210,7 +201,7 @@ class MainActivity : Activity() {
             appName.alpha = 0.2f
             appName.translationY = 6f * resources.displayMetrics.density
             appName.animate().alpha(1f).translationY(0f).setDuration(220)
-                .setInterpolator(android.view.animation.DecelerateInterpolator(1.6f)).start()
+                .setInterpolator(DecelerateInterpolator(1.6f)).start()
         }
     }
 
@@ -221,7 +212,7 @@ class MainActivity : Activity() {
         }
     }
 
-    // --- All Apps sheet ---------------------------------------------------------------------
+    // --- All Apps screen --------------------------------------------------------------------
 
     private fun openSheet() {
         if (sheetOpen) return
@@ -229,7 +220,8 @@ class MainActivity : Activity() {
         home.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
         sheet.visibility = View.VISIBLE
         slideSheetTo(0f, from = resources.displayMetrics.heightPixels.toFloat())
-        rvGrid.post { rvGrid.findViewHolderForAdapterPosition(0)?.itemView?.requestFocus() }
+        val rv = if (pinnedItems.isNotEmpty()) rvPinned else rvGrid
+        rv.post { rv.findViewHolderForAdapterPosition(0)?.itemView?.requestFocus() }
     }
 
     private fun closeSheet() {
@@ -238,7 +230,7 @@ class MainActivity : Activity() {
         home.visibility = View.VISIBLE
         home.descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
         slideSheetTo(resources.displayMetrics.heightPixels.toFloat(), from = sheet.translationY)
-        focusShelf((rvDock.adapter?.itemCount ?: 1) - 1)
+        focusShelf(0)
     }
 
     /** Spring from the live position, so grabbing it mid-flight just re-targets. Damping 1.0 = no bounce. */
@@ -293,20 +285,18 @@ class MainActivity : Activity() {
         super.onStop()
     }
 
-    /** Home pressed while we are already showing: close the sheet and go back to the first tile. */
+    /** Home pressed while we are already showing: close All Apps and go back to the first tile. */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (intent.hasCategory(Intent.CATEGORY_HOME)) {
             if (sheetOpen) closeSheet()
-            shelfPos = 0
-            exitFullScreen()
             focusShelf(0)
         }
     }
 
-    // Back closes the sheet; a launcher has nowhere else to go back to.
+    // Back closes All Apps; a launcher has nowhere else to go back to.
     @Suppress("OVERRIDE_DEPRECATION")
-    override fun onBackPressed() { if (fullScreen) exitFullScreen() else closeSheet() }
+    override fun onBackPressed() { closeSheet() }
 
     private companion object {
         const val ROTATE_MS = 10 * 60 * 1000L

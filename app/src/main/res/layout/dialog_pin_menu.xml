@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/menu_bg"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/menuTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:paddingStart="14dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="8dp"
+        android:textColor="#B3FFFFFF"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/menuLeft"
+        style="@style/MenuRow"
+        android:text="@string/move_left" />
+
+    <TextView
+        android:id="@+id/menuRight"
+        style="@style/MenuRow"
+        android:text="@string/move_right" />
+
+    <TextView
+        android:id="@+id/menuRemove"
+        style="@style/MenuRow"
+        android:text="@string/remove_from_home" />
+</LinearLayout>

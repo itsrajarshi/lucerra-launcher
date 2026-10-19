@@ -43,6 +43,7 @@ class AppAdapter(
     private val items: List<AppItem>,
     private val nameAbove: Boolean,
     private val onFocus: ((AppItem) -> Unit)? = null,
+    private val onLongClick: ((AppItem) -> Unit)? = null,
     private val onClick: (AppItem) -> Unit,
 ) : RecyclerView.Adapter<AppAdapter.VH>() {
 
@@ -80,16 +81,8 @@ class AppAdapter(
         h.item = item
         h.label.text = item.label
         h.itemView.setOnClickListener { onClick(item) }
+        h.itemView.setOnLongClickListener(onLongClick?.let { cb -> View.OnLongClickListener { cb(item); true } })
         val pad = (28 * h.itemView.resources.displayMetrics.density).toInt()
-
-        if (item.pkg == AppRepository.ALL_PKG) {
-            h.art.setImageResource(R.drawable.ic_apps)
-            h.art.setPadding(pad, pad / 2, pad, pad / 2)
-            h.art.scaleType = ImageView.ScaleType.FIT_CENTER
-            h.hasBanner = false
-            h.syncLabel(h.itemView.hasFocus())
-            return
-        }
 
         h.art.setImageDrawable(null)
         h.hasBanner = false
