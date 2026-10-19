@@ -32,6 +32,6 @@
         android:paddingEnd="10dp"
         android:paddingBottom="6dp"
         android:textColor="#FFFFFFFF"
-        android:textSize="11sp"
+        android:textSize="14sp"
         android:textStyle="bold" />
 </FrameLayout>

@@ -32,10 +32,10 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
                 android:letterSpacing="0.18"
-                android:shadowColor="#660B0F14"
-                android:shadowRadius="6"
-                android:textColor="#D9FFFFFF"
-                android:textSize="11sp" />
+                android:shadowColor="#99000000"
+                android:shadowRadius="10"
+                android:textColor="#FFFFFFFF"
+                android:textSize="14sp" />
 
             <TextClock
                 android:layout_width="wrap_content"
@@ -44,10 +44,10 @@
                 android:fontFamily="sans-serif-light"
                 android:format12Hour="EEEE d MMMM"
                 android:format24Hour="EEEE d MMMM"
-                android:shadowColor="#660B0F14"
-                android:shadowRadius="8"
+                android:shadowColor="#99000000"
+                android:shadowRadius="10"
                 android:textColor="#FFFFFFFF"
-                android:textSize="26sp" />
+                android:textSize="30sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -73,7 +73,7 @@
                 android:shadowRadius="8"
                 android:text="@string/hint_all_apps"
                 android:textColor="#FFFFFFFF"
-                android:textSize="12sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/appName"
@@ -83,10 +83,10 @@
                 android:layout_marginBottom="10dp"
                 android:fontFamily="sans-serif-medium"
                 android:letterSpacing="-0.01"
-                android:shadowColor="#660B0F14"
-                android:shadowRadius="10"
+                android:shadowColor="#99000000"
+                android:shadowRadius="12"
                 android:textColor="#FFFFFFFF"
-                android:textSize="26sp" />
+                android:textSize="30sp" />
 
             <!-- The shelf: one glass surface holding the favourites. -->
             <dev.rajarshi.glasshome.GlassFrame
@@ -153,16 +153,16 @@
                         android:letterSpacing="0.18"
                         android:text="@string/all_apps"
                         android:textAllCaps="true"
-                        android:textColor="#D9FFFFFF"
-                        android:textSize="11sp" />
+                        android:textColor="#F2FFFFFF"
+                        android:textSize="15sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
                         android:text="@string/pin_hint"
-                        android:textColor="#99FFFFFF"
-                        android:textSize="11sp" />
+                        android:textColor="#CCFFFFFF"
+                        android:textSize="15sp" />
                 </LinearLayout>
 
                 <FrameLayout
@@ -214,12 +214,11 @@
 
                 <ImageView
                     android:id="@+id/btnAssistant"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:contentDescription="Google Assistant"
                     android:focusable="true"
                     android:background="@drawable/focus_oval"
-                    android:padding="10dp"
                     android:src="@drawable/ic_assistant" />
             </dev.rajarshi.glasshome.GlassFrame>
 
@@ -238,9 +237,9 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingStart="16dp"
-                    android:paddingTop="4dp"
-                    android:paddingEnd="5dp"
-                    android:paddingBottom="4dp">
+                    android:paddingTop="5dp"
+                    android:paddingEnd="6dp"
+                    android:paddingBottom="5dp">
     
                     <TextClock
                         android:layout_width="wrap_content"
@@ -249,11 +248,11 @@
                         android:format12Hour="h:mm a"
                         android:format24Hour="HH:mm"
                         android:textColor="#FFFFFFFF"
-                        android:textSize="14sp" />
+                        android:textSize="20sp" />
     
                     <FrameLayout
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="34dp"
+                        android:layout_height="34dp"
                         android:layout_marginStart="12dp">
     
                         <TextView
@@ -264,7 +263,7 @@
                             android:fontFamily="sans-serif-medium"
                             android:gravity="center"
                             android:textColor="#FFFFFFFF"
-                            android:textSize="13sp" />
+                            android:textSize="16sp" />
     
                         <ImageView
                             android:id="@+id/avatar"
