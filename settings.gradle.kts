@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "GlassHome"
+rootProject.name = "LucerraLauncher"
 include(":app")

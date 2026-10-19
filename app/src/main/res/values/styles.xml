@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.GlassHome" parent="android:Theme.Material.NoActionBar">
+    <style name="Theme.Lucerra" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowDrawsSystemBarBackgrounds">false</item>
