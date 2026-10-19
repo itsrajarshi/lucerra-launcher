@@ -1,65 +1,100 @@
 # Lucerra Launcher
 
-A fast, ad-free Android TV launcher with an Apple TV-style layout and liquid-glass touches. Built for
-the Mi Box 4K (Android 9), where real-time blur is too slow, so the glass is pre-blurred once per
-wallpaper and sampled by the dock.
+A fast, ad-free home screen for Android TV and Google TV. Five apps, a glass dock, a calm wallpaper.
 
-- No network permission, no background services, no ads.
-- Public-domain NASA photo wallpapers, crossfading every 10 minutes.
-- Spring-driven focus motion that can be interrupted mid-flight.
-- "Effects: Reduced" toggle for opaque panels and no motion (also auto-on if system animations are off).
+![Stock home vs Lucerra](docs/images/before-after.jpg)
 
-## Build
+## What is Lucerra?
+
+The stock Google TV home is a wall of sponsored posters, recommendation rows and ads. It is heavy, and
+on a Mi Box 4K it is slow.
+
+Lucerra replaces it with one thing: your five favourite apps in a frosted-glass dock over a rotating
+NASA photo. Nothing else.
+
+![Lucerra home](docs/images/home.jpg)
+
+- **Five favourites on Home.** Pin, reorder or remove them with a long press of OK.
+- **All Apps** is one press of Up away.
+- **No ads, no recommendations, no network permission, no background services.**
+- **Now Playing.** A glass widget shows the current track from Spotify or any app with a media session.
+- **Remote apps button.** The key the system sends to TV Settings opens All Apps instead.
+- **Light.** About 47 MB of memory and about 3% janky frames while scrolling, measured on a Mi Box 4K.
+- **Spring-driven focus motion** that can be interrupted mid-flight. "Effects: Reduced" gives opaque panels and no motion (also auto-on if system animations are off).
+- **Real glass, cheaply.** Real-time blur is too slow on this hardware, so each wallpaper is blurred once and the dock samples it.
+
+## Install
+
+Download `Lucerra-Launcher-v0.1.0.apk` from [Releases](../../releases), then:
+
+```
+adb connect <tv-ip>:5555
+adb install -r Lucerra-Launcher-v0.1.0.apk
+```
+
+### Make it the default Home
+
+The stock home wins the Home key, so disable it (reversible). Tested on a Mi Box 4K (Android 12):
+
+```
+powershell -File tools/debloat.ps1 -Device <tv-ip>:5555   # disables stock home, recommendations, Xiaomi analytics, MiTV channel/plus, Play Games
+powershell -File tools/restore.ps1 -Device <tv-ip>:5555   # puts everything back
+```
+
+Other Android TV boxes work too; edit the package list in `tools/debloat.ps1` to suit.
+
+### Remote apps button
+
+The remote's apps button (key 284) is claimed by the system. Enable the Lucerra accessibility service
+(Settings > Accessibility, or the command below) and it opens All Apps. The same service opens the
+Power dialog.
+
+```
+adb shell settings put secure enabled_accessibility_services dev.raj.lucerra/dev.raj.lucerra.KeyService
+adb shell settings put secure accessibility_enabled 1
+```
+
+### Now Playing
+
+Android only shows other apps' media sessions to an app with notification access. Lucerra's listener
+class contains no code, so it reads no notifications. Grant it once:
+
+```
+adb shell cmd notification allow_listener dev.raj.lucerra/dev.raj.lucerra.NowPlayingListener
+```
+
+Use `cmd notification allow_listener` rather than writing the secure setting directly: the direct write
+overwrites the other allowed listeners and was not picked up by the system.
+
+## Using it
+
+- **Up** from the shelf opens All Apps: your favourites in a strip on top, every other app below. Back closes it.
+- **Hold OK** on an app in the grid: Add to Home (five at most) or Uninstall.
+- **Hold OK** on a favourite: Move left, Move right, Remove from Home.
+- **Up** again from the strip reaches the Assistant bubble and the clock pill. The pill opens Wi-Fi, Settings and Power.
+- Favourites are stored in app preferences and survive reboots.
+- To change the default favourites or hide packages, edit `app/src/main/res/values/config.xml`.
+- To show your photo in the clock pill, add a square `app/src/main/assets/profile.jpg` (otherwise the initial from `profile_initial` in `config.xml`).
+- Six scenery photos live in `app/src/main/assets/wallpapers/`. Drop more 1920x1080 JPEGs there; they crossfade every 10 minutes.
+
+## Build from source
 
 Needs JDK 17 and the Android SDK (platform 34). Create `local.properties` with
 `sdk.dir=C:/path/to/Android/Sdk`, then:
 
 ```
 ./gradlew assembleDebug
-adb connect <tv-ip>:5555
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Edit `app/src/main/res/values/config.xml` to change the Favorites row or hide packages.
+`./gradlew assembleRelease` signs with `keystore.properties` from `~/.lucerra-signing/` (or
+`$LUCERRA_SIGNING_DIR`). If that file is missing it falls back to the debug key, so anyone can build.
 
-For a release APK run `./gradlew assembleRelease`. It signs with `keystore.properties` from `~/.lucerra-signing/` (or `$LUCERRA_SIGNING_DIR`); if that file is missing, it falls back to the debug key so anyone can build.
+## Licence, name and credits
 
-## License
+GPL-3.0, see [LICENSE](LICENSE). Forks must stay open source under the same licence. The name
+"Lucerra" and its logo are not licensed for use on forks.
 
-GPL-3.0, see [LICENSE](LICENSE). Forks must stay open source under the same licence. The name "Lucerra" and its logo are not licensed for use on forks. The wallpapers are NASA public-domain photos, credited in `WALLPAPER-CREDITS.md`.
-
-## Wallpapers
-Six scenery photos in `app/src/main/assets/wallpapers/` (credits in `WALLPAPER-CREDITS.md`). Drop more 1920x1080 JPEGs there; they rotate every 10 minutes.
-
-## Make it the default Home (Mi Box 4K)
-Stock Google TV home wins the Home key, so disable it (reversible):
-
-```
-powershell -File tools/debloat.ps1 -Device <box-ip>:5555   # disables stock home, recommendations, Xiaomi analytics, MiTV channel/plus, Play Games
-powershell -File tools/restore.ps1 -Device <box-ip>:5555   # puts everything back
-```
-Measured on the box: about 67 MB PSS, ~1% janky frames while scrolling.
-
-## All Apps, pinning and reordering
-
-- Home shows exactly five favourite apps. Press **Up** from the shelf to open All Apps: your favourites in a strip on top, every other app below.
-- **Hold OK** on an app in the grid to pin it to Home (five at most).
-- **Hold OK** on a favourite (on Home or in the strip) for a menu: Move left, Move right, Remove from Home.
-- Back closes All Apps. The order is stored in app preferences, so it survives reboots.
-- The round Assistant bubble beside the clock opens Google Assistant.
-- Put a square `app/src/main/assets/profile.jpg` in the project to show your photo in the clock pill (otherwise the initial from `profile_initial` in `config.xml`).
-- Press **Up** again from the favourites strip to reach the Assistant bubble and the clock pill. The pill opens a dropdown: Wi-Fi, Settings, Power.
-- Hold OK on any app in the grid for Add to Home or Uninstall.
-- The remote's apps button (key 284) is claimed by the system and sent to TV Settings. To make it open All Apps, enable the Lucerra accessibility service (Settings > Accessibility, or `adb shell settings put secure enabled_accessibility_services dev.raj.lucerra/dev.raj.lucerra.KeyService` plus `accessibility_enabled 1`). The same service opens the Power dialog.
-
-## Now playing
-
-While Spotify (or any app with a media session) is playing, a glass widget appears in the top bar with the title, artist, album art and previous / play-pause / next. After a pause it stays 20 seconds, then fades away.
-
-Android only shows other apps' media sessions to an app with notification access. Lucerra's listener class contains no code, so it reads no notifications. Grant it once:
-
-```bash
-adb shell cmd notification allow_listener dev.raj.lucerra/dev.raj.lucerra.NowPlayingListener
-```
-
-Use `cmd notification allow_listener` rather than writing the secure setting directly: the direct write overwrites the other allowed listeners and was not picked up by the system.
+The wallpapers are NASA public-domain photos, credited in [WALLPAPER-CREDITS.md](WALLPAPER-CREDITS.md).
+Lucerra is not affiliated with or endorsed by NASA, Google or any app shown in the screenshots. App
+names and logos belong to their owners.
