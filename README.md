@@ -5,7 +5,7 @@ the Mi Box 4K (Android 9), where real-time blur is too slow, so the glass is pre
 wallpaper and sampled by the dock.
 
 - No network permission, no background services, no ads.
-- Procedurally generated wallpapers (nothing to license), crossfading every 10 minutes.
+- Public-domain NASA photo wallpapers, crossfading every 10 minutes.
 - Spring-driven focus motion that can be interrupted mid-flight.
 - "Effects: Reduced" toggle for opaque panels and no motion (also auto-on if system animations are off).
 
@@ -24,7 +24,7 @@ Edit `app/src/main/res/values/config.xml` to change the Favorites row or hide pa
 
 ## License
 
-Proprietary, all rights reserved. See [LICENSE](LICENSE).
+GPL-3.0, see [LICENSE](LICENSE). Forks must stay open source under the same licence. The name "Lucerra" and its logo are not licensed for use on forks. The wallpapers are NASA public-domain photos, credited in `WALLPAPER-CREDITS.md`.
 
 ## Wallpapers
 Six scenery photos in `app/src/main/assets/wallpapers/` (credits in `WALLPAPER-CREDITS.md`). Drop more 1920x1080 JPEGs there; they rotate every 10 minutes.
@@ -33,10 +33,10 @@ Six scenery photos in `app/src/main/assets/wallpapers/` (credits in `WALLPAPER-C
 Stock Google TV home wins the Home key, so disable it (reversible):
 
 ```
-powershell -File tools/debloat.ps1     # disables stock home, recommendations, Xiaomi analytics, MiTV channel/plus, Play Games
-powershell -File tools/restore.ps1     # puts everything back
+powershell -File tools/debloat.ps1 -Device <box-ip>:5555   # disables stock home, recommendations, Xiaomi analytics, MiTV channel/plus, Play Games
+powershell -File tools/restore.ps1 -Device <box-ip>:5555   # puts everything back
 ```
-Pass `-Device <ip>:5555` if your box differs from 192.168.0.103. Measured on the box: about 67 MB PSS, ~1% janky frames while scrolling.
+Measured on the box: about 67 MB PSS, ~1% janky frames while scrolling.
 
 ## All Apps, pinning and reordering
 

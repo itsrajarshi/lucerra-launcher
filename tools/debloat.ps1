@@ -1,5 +1,5 @@
 # Disables stock home, ads and telemetry on the Mi Box. Reversible: tools/restore.ps1.
-param([string]$Device = "192.168.0.103:5555", [switch]$Restore)
+param([Parameter(Mandatory)][string]$Device, [switch]$Restore)
 $adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
 $pkgs = "com.google.android.tvlauncher","com.google.android.apps.tv.launcherx",
   "com.google.android.tvrecommendations","com.miui.tv.analytics","com.xiaomi.statistic",
