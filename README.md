@@ -16,6 +16,8 @@ NASA photo. Nothing else.
 
 - **Five favourites on Home.** Pin, reorder or remove them with a long press of OK.
 - **All Apps** is one press of Up away.
+
+![All Apps](docs/images/apps.jpg)
 - **No ads, no recommendations, no network permission, no background services.**
 - **Now Playing.** A glass widget shows the current track from Spotify or any app with a media session.
 - **Remote apps button.** The key the system sends to TV Settings opens All Apps instead.
@@ -71,6 +73,9 @@ overwrites the other allowed listeners and was not picked up by the system.
 - **Up** from the shelf opens All Apps: your favourites in a strip on top, every other app below. Back closes it.
 - **Hold OK** on an app in the grid: Add to Home (five at most) or Uninstall.
 - **Hold OK** on a favourite: Move left, Move right, Remove from Home.
+
+![Long-press menu](docs/images/menu.jpg)
+
 - **Up** again from the strip reaches the Assistant bubble and the clock pill. The pill opens Wi-Fi, Settings and Power.
 - Favourites are stored in app preferences and survive reboots.
 - To change the default favourites or hide packages, edit `app/src/main/res/values/config.xml`.
