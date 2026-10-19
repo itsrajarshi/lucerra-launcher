@@ -88,3 +88,4 @@ header.top{background:rgba(246,247,251,.7);backdrop-filter:blur(22px) saturate(1
 .social{display:inline-flex;gap:14px;vertical-align:middle}.social a{display:inline-flex;color:var(--dim);transition:transform .1s ease-out,color .2s ease}.social a:hover{color:var(--ink)}.social a:active{transform:scale(.92)}
 
 .steps li h3{margin:0}.docs article ul{padding-left:1.2em}html{scroll-padding-top:84px}
+.docs article{min-width:0}.steps li{grid-template-columns:44px minmax(0,1fr)}
