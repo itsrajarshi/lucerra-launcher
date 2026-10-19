@@ -35,17 +35,31 @@ private object Art {
     }
 }
 
+/**
+ * @param nameAbove true on the shelf, where the focused app's name is shown above it, so a
+ *   tile with a banner needs no label of its own. The grid shows the label on focus instead.
+ */
 class AppAdapter(
     private val items: List<AppItem>,
+    private val nameAbove: Boolean,
+    private val onFocus: ((AppItem) -> Unit)? = null,
     private val onClick: (AppItem) -> Unit,
 ) : RecyclerView.Adapter<AppAdapter.VH>() {
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
         val art: ImageView = v.findViewById(R.id.art)
         val label: TextView = v.findViewById(R.id.label)
-        var boundPkg: String? = null
+        var item: AppItem? = null
         var hasBanner = false
-        val spring = FocusSpring(v, focusedScale = 1.12f, lift = 12f * v.resources.displayMetrics.density)
+        val spring = FocusSpring(v, focusedScale = 1.1f, lift = 12f * v.resources.displayMetrics.density)
+    }
+
+    private fun VH.syncLabel(focused: Boolean) {
+        label.visibility = when {
+            !hasBanner -> View.VISIBLE
+            focused && !nameAbove -> View.VISIBLE
+            else -> View.INVISIBLE
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -53,7 +67,8 @@ class AppAdapter(
         return VH(v).also { vh ->
             v.setOnFocusChangeListener { _, focused ->
                 vh.spring.onFocus(focused)
-                vh.label.visibility = if (focused || !vh.hasBanner) View.VISIBLE else View.INVISIBLE
+                vh.syncLabel(focused)
+                if (focused) vh.item?.let { onFocus?.invoke(it) }
             }
         }
     }
@@ -62,20 +77,31 @@ class AppAdapter(
 
     override fun onBindViewHolder(h: VH, position: Int) {
         val item = items[position]
-        h.boundPkg = item.pkg
+        h.item = item
         h.label.text = item.label
+        h.itemView.setOnClickListener { onClick(item) }
+        val pad = (28 * h.itemView.resources.displayMetrics.density).toInt()
+
+        if (item.pkg == AppRepository.ALL_PKG) {
+            h.art.setImageResource(R.drawable.ic_apps)
+            h.art.setPadding(pad, pad / 2, pad, pad / 2)
+            h.art.scaleType = ImageView.ScaleType.FIT_CENTER
+            h.hasBanner = false
+            h.syncLabel(h.itemView.hasFocus())
+            return
+        }
+
         h.art.setImageDrawable(null)
         h.hasBanner = false
-        h.label.visibility = View.VISIBLE
-        h.itemView.setOnClickListener { onClick(item) }
+        h.syncLabel(h.itemView.hasFocus())
         Art.load(h.itemView.context, item) { r ->
-            if (h.boundPkg != item.pkg) return@load
+            if (h.item?.pkg != item.pkg) return@load
             h.art.setImageDrawable(r.state?.newDrawable() ?: r.fallback)
             h.hasBanner = r.banner
-            val pad = if (r.banner) 0 else (28 * h.itemView.resources.displayMetrics.density).toInt()
-            h.art.setPadding(pad, pad, pad, pad)
+            val p = if (r.banner) 0 else pad
+            h.art.setPadding(p, p, p, p)
             h.art.scaleType = if (r.banner) ImageView.ScaleType.CENTER_CROP else ImageView.ScaleType.FIT_CENTER
-            h.label.visibility = if (r.banner && !h.itemView.hasFocus()) View.INVISIBLE else View.VISIBLE
+            h.syncLabel(h.itemView.hasFocus())
         }
     }
 }

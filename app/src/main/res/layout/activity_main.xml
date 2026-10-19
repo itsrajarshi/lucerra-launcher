@@ -8,13 +8,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- 5% overscan-safe margins (48dp of 960dp). -->
-    <LinearLayout
+    <!-- Home: 5% overscan-safe margins (48dp of 960dp). -->
+    <FrameLayout
+        android:id="@+id/home"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:orientation="vertical"
         android:paddingStart="48dp"
         android:paddingTop="27dp"
         android:paddingEnd="48dp"
@@ -23,112 +23,139 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="bottom"
-            android:orientation="horizontal">
+            android:layout_gravity="top|start"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/greeting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.18"
+                android:textColor="#D9FFFFFF"
+                android:textSize="11sp" />
 
             <TextClock
-                android:id="@+id/clock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"
                 android:format12Hour="h:mm"
                 android:format24Hour="HH:mm"
                 android:letterSpacing="-0.03"
-                android:lineSpacingMultiplier="0.9"
                 android:textColor="#FFFFFFFF"
-                android:textSize="52sp" />
-
-            <TextClock
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
-                android:layout_marginBottom="9dp"
-                android:fontFamily="sans-serif-medium"
-                android:format12Hour="EEEE, d MMMM"
-                android:format24Hour="EEEE, d MMMM"
-                android:letterSpacing="0.02"
-                android:textColor="#D9FFFFFF"
-                android:textSize="15sp" />
+                android:textSize="48sp" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/favLabel"
+        <!-- Glass pills: functional controls, so they get the material. -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.04"
-            android:text="@string/favorites"
-            android:textColor="#CCFFFFFF"
-            android:textSize="13sp" />
+            android:layout_gravity="top|end"
+            android:orientation="horizontal">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvFav"
-            android:layout_width="match_parent"
-            android:layout_height="124dp"
-            android:layout_marginStart="-48dp"
-            android:layout_marginEnd="-48dp"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:paddingStart="48dp"
-            android:paddingEnd="48dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.04"
-            android:text="@string/all_apps"
-            android:textColor="#CCFFFFFF"
-            android:textSize="13sp" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvAll"
-            android:layout_width="match_parent"
-            android:layout_height="124dp"
-            android:layout_marginStart="-48dp"
-            android:layout_marginEnd="-48dp"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:paddingStart="48dp"
-            android:paddingEnd="48dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <!-- The one glass surface: a floating functional dock. -->
-        <dev.rajarshi.glasshome.GlassFrame
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:padding="6dp">
-
-            <LinearLayout
+            <dev.rajarshi.glasshome.GlassFrame
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/btnSettings"
-                    style="@style/DockButton"
-                    android:text="@string/settings" />
+                android:padding="3dp">
 
                 <TextView
                     android:id="@+id/btnWifi"
                     style="@style/DockButton"
                     android:text="@string/wifi" />
+            </dev.rajarshi.glasshome.GlassFrame>
+
+            <dev.rajarshi.glasshome.GlassFrame
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:padding="3dp">
 
                 <TextView
-                    android:id="@+id/btnEffects"
+                    android:id="@+id/btnSettings"
                     style="@style/DockButton"
-                    android:text="@string/effects_full" />
-            </LinearLayout>
+                    android:text="@string/settings" />
+            </dev.rajarshi.glasshome.GlassFrame>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/appName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="-0.01"
+                android:textColor="#FFFFFFFF"
+                android:textSize="26sp" />
+
+            <!-- The shelf: one glass surface holding the favourites. -->
+            <dev.rajarshi.glasshome.GlassFrame
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:padding="10dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvDock"
+                    android:layout_width="match_parent"
+                    android:layout_height="106dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp" />
+            </dev.rajarshi.glasshome.GlassFrame>
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- All Apps sheet: slides up from the shelf, goes back down on Back. -->
+    <FrameLayout
+        android:id="@+id/sheet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <dev.rajarshi.glasshome.GlassFrame
+            android:id="@+id/sheetGlass"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
+            android:clipChildren="false"
+            android:paddingStart="12dp"
+            android:paddingTop="18dp"
+            android:paddingEnd="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.18"
+                android:text="@string/all_apps"
+                android:textAllCaps="true"
+                android:textColor="#D9FFFFFF"
+                android:textSize="11sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvGrid"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="22dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:paddingBottom="24dp" />
         </dev.rajarshi.glasshome.GlassFrame>
-    </LinearLayout>
+    </FrameLayout>
 </FrameLayout>

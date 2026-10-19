@@ -11,6 +11,12 @@ import androidx.recyclerview.widget.RecyclerView
 class CenterLayoutManager(ctx: Context) : LinearLayoutManager(ctx, HORIZONTAL, false) {
     private val ease = DecelerateInterpolator(1.6f)
 
+    /** Keep the neighbours attached, so D-pad focus search always finds the next tile instead of leaving the row. */
+    override fun calculateExtraLayoutSpace(state: RecyclerView.State, extraLayoutSpace: IntArray) {
+        extraLayoutSpace[0] = width / 2
+        extraLayoutSpace[1] = width / 2
+    }
+
     override fun requestChildRectangleOnScreen(
         parent: RecyclerView, child: View, rect: Rect, immediate: Boolean, focusedChildVisible: Boolean,
     ): Boolean {

@@ -3,7 +3,10 @@ package dev.rajarshi.glasshome
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
+import android.content.Context
+import android.content.res.AssetManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.LinearGradient
 import android.graphics.Paint
@@ -50,16 +53,33 @@ object Wallpapers {
     fun attach(v: View) { views.add(v) }
     fun detach(v: View) { views.remove(v) }
 
+    private var assets: AssetManager? = null
+    private var photos: List<String> = emptyList()
+
+    /** Picks up 1080p scenery from assets/wallpapers; with none there, falls back to generated art. */
+    fun init(ctx: Context) {
+        assets = ctx.applicationContext.assets
+        photos = (assets!!.list("wallpapers") ?: emptyArray())
+            .filter { it.endsWith(".jpg") || it.endsWith(".jpeg") || it.endsWith(".png") }
+            .shuffled()
+    }
+
     /** Render the next wallpaper off the main thread, then crossfade to it. */
     fun next(animate: Boolean) {
-        index = (index + 1) % palettes.size
-        val palette = palettes[index]
-        val seed = System.nanoTime()
+        val i = index++
         worker.execute {
-            val sharp = render(palette, seed)
+            val sharp = photos.takeIf { it.isNotEmpty() }?.let { decode(it[i % it.size]) }
+                ?: render(palettes[i % palettes.size], System.nanoTime())
             val blur = blur(sharp)
             main.post { swapIn(sharp, blur, animate) }
         }
+    }
+
+    /** Full 1920x1080, no downscale: the photo is the whole point of the screen. */
+    private fun decode(name: String): Bitmap? = try {
+        assets!!.open("wallpapers/$name").use { BitmapFactory.decodeStream(it) }
+    } catch (e: Exception) {
+        null
     }
 
     private fun swapIn(sharp: Bitmap, blur: Bitmap, animate: Boolean) {

@@ -21,7 +21,7 @@ import android.widget.FrameLayout
  */
 class GlassFrame @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null) : FrameLayout(ctx, attrs) {
     private val density = resources.displayMetrics.density
-    private val radius = 22f * density
+    private var radius = 22f * density
     private val path = Path()
     private val rect = RectF()
     private val loc = IntArray(2)
@@ -43,6 +43,7 @@ class GlassFrame @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = 
     override fun onDetachedFromWindow() { Wallpapers.detach(this); super.onDetachedFromWindow() }
 
     override fun onSizeChanged(w: Int, h: Int, ow: Int, oh: Int) {
+        radius = minOf(22f * density, h / 2f) // small pills become true capsules
         val inset = rim.strokeWidth / 2
         rect.set(inset, inset, w - inset, h - inset)
         path.reset()

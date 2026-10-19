@@ -9,6 +9,9 @@ data class AppItem(val label: String, val pkg: String, val launch: Intent)
 class AppLists(val favorites: List<AppItem>, val all: List<AppItem>)
 
 object AppRepository {
+    /** Pseudo-package for the shelf's last tile, which opens the All Apps sheet. */
+    const val ALL_PKG = "__all__"
+
     fun load(ctx: Context): AppLists {
         val pm = ctx.packageManager
         val hidden = ctx.resources.getStringArray(R.array.hidden_packages).toSet() + ctx.packageName
