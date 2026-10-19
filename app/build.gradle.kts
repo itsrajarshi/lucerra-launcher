@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "dev.rajarshi.glasshome"
+    namespace = "dev.raj.lucerra"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "dev.rajarshi.glasshome"
+        applicationId = "dev.raj.lucerra"
         minSdk = 21
         targetSdk = 34
         versionCode = 1

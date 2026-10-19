@@ -1,4 +1,4 @@
-package dev.rajarshi.glasshome
+package dev.raj.lucerra
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter

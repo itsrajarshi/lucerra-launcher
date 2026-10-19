@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:clipChildren="false">
 
-    <dev.rajarshi.glasshome.WallpaperView
+    <dev.raj.lucerra.WallpaperView
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
@@ -95,7 +95,7 @@
             </FrameLayout>
 
             <!-- The shelf: one glass surface holding the favourites. -->
-            <dev.rajarshi.glasshome.GlassFrame
+            <dev.raj.lucerra.GlassFrame
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipChildren="false"
@@ -111,7 +111,7 @@
                     android:paddingStart="7dp"
                     android:paddingTop="6dp"
                     android:paddingBottom="6dp" />
-            </dev.rajarshi.glasshome.GlassFrame>
+            </dev.raj.lucerra.GlassFrame>
         </LinearLayout>
     </FrameLayout>
 
@@ -122,7 +122,7 @@
         android:layout_height="match_parent"
         android:visibility="gone">
 
-        <dev.rajarshi.glasshome.GlassFrame
+        <dev.raj.lucerra.GlassFrame
             android:id="@+id/sheetGlass"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -199,7 +199,7 @@
                     android:paddingStart="10dp"
                     android:paddingBottom="27dp" />
             </LinearLayout>
-        </dev.rajarshi.glasshome.GlassFrame>
+        </dev.raj.lucerra.GlassFrame>
     </FrameLayout>
 
         <!-- Assistant bubble + time/profile pill, top right. -->
@@ -213,7 +213,7 @@
             android:orientation="horizontal">
 
             <!-- Now playing: only visible while a media session is on. -->
-            <dev.rajarshi.glasshome.GlassFrame
+            <dev.raj.lucerra.GlassFrame
                 android:id="@+id/nowPlaying"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -297,9 +297,9 @@
                         android:padding="7dp"
                         android:src="@drawable/ic_next" />
                 </LinearLayout>
-            </dev.rajarshi.glasshome.GlassFrame>
+            </dev.raj.lucerra.GlassFrame>
 
-            <dev.rajarshi.glasshome.GlassFrame
+            <dev.raj.lucerra.GlassFrame
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
@@ -314,9 +314,9 @@
                     android:background="@drawable/focus_oval"
                     android:padding="5dp"
                     android:src="@drawable/ic_assistant" />
-            </dev.rajarshi.glasshome.GlassFrame>
+            </dev.raj.lucerra.GlassFrame>
 
-    <dev.rajarshi.glasshome.GlassFrame
+    <dev.raj.lucerra.GlassFrame
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="3dp">
@@ -367,6 +367,6 @@
                             android:visibility="gone" />
                     </FrameLayout>
                 </LinearLayout>
-        </dev.rajarshi.glasshome.GlassFrame>
+        </dev.raj.lucerra.GlassFrame>
     </LinearLayout>
 </FrameLayout>

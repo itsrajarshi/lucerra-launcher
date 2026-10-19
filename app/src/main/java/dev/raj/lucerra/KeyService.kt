@@ -1,4 +1,4 @@
-package dev.rajarshi.glasshome
+package dev.raj.lucerra
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent

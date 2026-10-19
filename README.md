@@ -48,7 +48,7 @@ Pass `-Device <ip>:5555` if your box differs from 192.168.0.103. Measured on the
 - Put a square `app/src/main/assets/profile.jpg` in the project to show your photo in the clock pill (otherwise the initial from `profile_initial` in `config.xml`).
 - Press **Up** again from the favourites strip to reach the Assistant bubble and the clock pill. The pill opens a dropdown: Wi-Fi, Settings, Power.
 - Hold OK on any app in the grid for Add to Home or Uninstall.
-- The remote's apps button (key 284) is claimed by the system and sent to TV Settings. To make it open All Apps, enable the Lucerra accessibility service (Settings > Accessibility, or `adb shell settings put secure enabled_accessibility_services dev.rajarshi.glasshome/dev.rajarshi.glasshome.KeyService` plus `accessibility_enabled 1`). The same service opens the Power dialog.
+- The remote's apps button (key 284) is claimed by the system and sent to TV Settings. To make it open All Apps, enable the Lucerra accessibility service (Settings > Accessibility, or `adb shell settings put secure enabled_accessibility_services dev.raj.lucerra/dev.raj.lucerra.KeyService` plus `accessibility_enabled 1`). The same service opens the Power dialog.
 
 ## Now playing
 
@@ -57,7 +57,7 @@ While Spotify (or any app with a media session) is playing, a glass widget appea
 Android only shows other apps' media sessions to an app with notification access. Lucerra's listener class contains no code, so it reads no notifications. Grant it once:
 
 ```bash
-adb shell cmd notification allow_listener dev.rajarshi.glasshome/dev.rajarshi.glasshome.NowPlayingListener
+adb shell cmd notification allow_listener dev.raj.lucerra/dev.raj.lucerra.NowPlayingListener
 ```
 
 Use `cmd notification allow_listener` rather than writing the secure setting directly: the direct write overwrites the other allowed listeners and was not picked up by the system.
