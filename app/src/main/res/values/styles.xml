@@ -31,9 +31,9 @@
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:paddingStart">14dp</item>
         <item name="android:paddingEnd">14dp</item>
-        <item name="android:paddingTop">14dp</item>
-        <item name="android:paddingBottom">14dp</item>
+        <item name="android:paddingTop">11dp</item>
+        <item name="android:paddingBottom">11dp</item>
         <item name="android:textColor">#FFFFFFFF</item>
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">15sp</item>
     </style>
 </resources>

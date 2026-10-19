@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="340dp"
+    android:layout_width="280dp"
     android:layout_height="wrap_content"
     android:background="@drawable/menu_bg"
     android:orientation="vertical"
@@ -14,8 +14,8 @@
         android:paddingStart="14dp"
         android:paddingTop="6dp"
         android:paddingBottom="8dp"
-        android:textColor="#CCFFFFFF"
-        android:textSize="16sp" />
+        android:textColor="#B3FFFFFF"
+        android:textSize="13sp" />
 
     <TextView
         android:id="@+id/menuLeft"
