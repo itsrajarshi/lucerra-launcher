@@ -25,3 +25,15 @@ Edit `app/src/main/res/values/config.xml` to change the Favorites row or hide pa
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Wallpapers
+Six scenery photos in `app/src/main/assets/wallpapers/` (credits in `WALLPAPER-CREDITS.md`). Drop more 1920x1080 JPEGs there; they rotate every 10 minutes.
+
+## Make it the default Home (Mi Box 4K)
+Stock Google TV home wins the Home key, so disable it (reversible):
+
+```
+powershell -File tools/debloat.ps1     # disables stock home, recommendations, Xiaomi analytics, MiTV channel/plus, Play Games
+powershell -File tools/restore.ps1     # puts everything back
+```
+Pass `-Device <ip>:5555` if your box differs from 192.168.0.103. Measured on the box: about 67 MB PSS, ~1% janky frames while scrolling.
