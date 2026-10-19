@@ -24,7 +24,7 @@ Edit `app/src/main/res/values/config.xml` to change the Favorites row or hide pa
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Proprietary, all rights reserved. See [LICENSE](LICENSE).
 
 ## Wallpapers
 Six scenery photos in `app/src/main/assets/wallpapers/` (credits in `WALLPAPER-CREDITS.md`). Drop more 1920x1080 JPEGs there; they rotate every 10 minutes.
