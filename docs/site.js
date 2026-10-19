@@ -22,7 +22,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')set(false)})
 h.querySelectorAll('nav a').forEach(function(a){a.addEventListener('click',function(){set(false)})})})();
 
 (function(){var f=document.getElementById('fb');if(!f)return;
-f.addEventListener('submit',function(e){e.preventDefault();var t=f.elements.title,b=f.elements.body;if(!t.value.trim()||!b.value.trim()){(t.value.trim()?b:t).setCustomValidity('Please fill this in.');(t.value.trim()?b:t).reportValidity();return}var d=new FormData(f),dev=d.get('device');
+f.addEventListener('submit',function(e){e.preventDefault();var t=f.elements.title,b=f.elements.body,bad=null;[[t,5],[b,15]].forEach(function(p){var n=p[0].value.trim().length;if(!bad&&n<p[1]){bad=p[0];bad.setCustomValidity(n?'Too short: write at least '+p[1]+' characters (you have '+n+').':'Please fill this in.')}});if(bad){bad.reportValidity();return}var d=new FormData(f),dev=d.get('device');
 var body=(d.get('body')||'')+(dev?'\n\nDevice: '+dev:'');
 var u='https://github.com/itsrajarshi/lucerra-launcher/issues/new?title='+encodeURIComponent('['+d.get('type')+'] '+d.get('title'))+'&body='+encodeURIComponent(body);
 window.open(u,'_blank','noopener')})})();
