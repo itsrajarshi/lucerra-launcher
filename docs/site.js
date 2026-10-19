@@ -14,3 +14,9 @@ document.querySelectorAll('pre').forEach(function(pre){
 })();
 
 (function(){var b=document.getElementById('upicopy');if(!b)return;b.addEventListener('click',function(){var t=document.getElementById('upi').textContent;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy ID'},1500)},function(){b.textContent='Select and copy'})})})();
+
+(function(){var h=document.querySelector('header.top'),b=h&&h.querySelector('.menu');if(!b)return;
+function set(o){h.classList.toggle('open',o);b.setAttribute('aria-expanded',o)}
+b.addEventListener('click',function(){set(!h.classList.contains('open'))});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')set(false)});
+h.querySelectorAll('nav a').forEach(function(a){a.addEventListener('click',function(){set(false)})})})();
