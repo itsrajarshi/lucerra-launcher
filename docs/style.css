@@ -86,3 +86,5 @@ header.top{background:rgba(246,247,251,.7);backdrop-filter:blur(22px) saturate(1
 @media(prefers-contrast:more){:root{--line:rgba(27,35,64,.45);--dim:#2c3552}}
 
 .social{display:inline-flex;gap:14px;vertical-align:middle}.social a{display:inline-flex;color:var(--dim);transition:transform .1s ease-out,color .2s ease}.social a:hover{color:var(--ink)}.social a:active{transform:scale(.92)}
+
+.steps li h3{margin:0}.docs article ul{padding-left:1.2em}html{scroll-padding-top:84px}

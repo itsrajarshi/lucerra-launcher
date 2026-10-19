@@ -1,9 +1,61 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Setup - Lucerra</title><meta name="description" content="Make Lucerra the default Home, enable the apps button and Now Playing."><meta name="theme-color" content="#f6f7fb"><link rel="icon" href="favicon.svg"><link rel="preload" href="fonts/outfit-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="style.css"></head><body><header class="top"><div class="wrap"><a class="brand" href="index.html"><img src="favicon.svg" alt="">LUCERRA</a><nav class="main"><a href="install.html">Install</a><a href="setup.html" aria-current="page">Setup</a><a href="using.html">Using it</a><a href="build.html">Build</a><a href="https://github.com/itsrajarshi/lucerra-launcher">GitHub</a></nav></div></header><div class="wrap docs"><aside><a href="install.html">Install</a><a href="setup.html" aria-current="page">Setup</a><a href="using.html">Using it</a><a href="build.html">Build and credits</a></aside><article><h1>Setup</h1><p>Three optional steps after installing. Each one is a few adb commands.</p>
-<h2>Default Home</h2><p>Use the scripts in <code>tools/</code> in the repo. <code>debloat.ps1</code> disables the stock launcher so Lucerra becomes Home; <code>restore.ps1</code> undoes it.</p>
-<h2>Remote apps button</h2><p>Enable the accessibility service so the apps button opens All Apps:</p>
-<pre><code>adb shell settings put secure enabled_accessibility_services dev.raj.lucerra/dev.raj.lucerra.KeyService
-adb shell settings put secure accessibility_enabled 1</code></pre>
-<h2>Now Playing widget</h2><p>Grant notification access so the widget can read Spotify or any media session:</p>
-<pre><code>adb shell cmd notification allow_listener dev.raj.lucerra/dev.raj.lucerra.NowPlayingListener</code></pre>
-<p class="note">Lucerra declares no network permission. These services only read key events and media sessions on the device.</p>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mi Box setup - Lucerra</title><meta name="description" content="Complete Lucerra setup for the Xiaomi Mi Box, by commands or with an AI agent."><meta name="theme-color" content="#f6f7fb"><link rel="icon" href="favicon.svg"><link rel="preload" href="fonts/outfit-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="style.css"></head><body><header class="top"><div class="wrap"><a class="brand" href="index.html"><img src="favicon.svg" alt="">LUCERRA</a><nav class="main"><a href="install.html">Install</a><a href="setup.html" aria-current="page">Setup</a><a href="using.html">Using it</a><a href="build.html">Build</a><a href="https://github.com/itsrajarshi/lucerra-launcher">GitHub</a></nav></div></header><div class="wrap docs"><aside><a href="install.html">Install</a><a href="setup.html" aria-current="page">Setup</a><a href="using.html">Using it</a><a href="build.html">Build and credits</a></aside><article><h1>Mi Box setup</h1>
+<p>This guide is written for the Xiaomi Mi Box (tested on a Mi Box 4K running Android 12). Do it yourself with the commands, or hand it to an AI agent. Total time: about 15 minutes.</p>
+<p><a href="#commands">By commands</a> &nbsp;·&nbsp; <a href="#agent">With an agent</a> &nbsp;·&nbsp; <a href="#undo">Undo everything</a> &nbsp;·&nbsp; <a href="#fix">Troubleshooting</a></p>
+
+<h2 id="need">What you need</h2>
+<ul><li>A Mi Box on the same Wi-Fi or Ethernet network as your computer.</li><li>A computer with <a href="https://developer.android.com/tools/releases/platform-tools">Android platform-tools</a> (<code>adb</code>) installed.</li><li><code>Lucerra-Launcher-v0.1.0.apk</code> from the <a href="https://github.com/itsrajarshi/lucerra-launcher/releases">GitHub releases</a>.</li><li>For the debloat script on Windows: PowerShell. On macOS or Linux use the manual commands in step 5.</li></ul>
+
+<h2 id="commands">By commands</h2>
+<ol class="steps">
+<li><h3>Turn on developer options</h3><p>On the Mi Box: Settings (gear), Device Preferences, About. Press OK on <b>Build</b> seven times until it says you are a developer. Go back to Device Preferences, open <b>Developer options</b> and turn on <b>USB debugging</b>. If you see a <b>Network debugging</b> toggle, turn that on too.</p></li>
+<li><h3>Find the IP address of the box</h3><p>Settings, Network and Internet, pick your network. The IP address is shown there. Note it as <code>&lt;tv-ip&gt;</code>. Reserve that address for the box in your router so it does not change.</p></li>
+<li><h3>Connect adb</h3><pre><code>adb connect &lt;tv-ip&gt;:5555
+adb devices</code></pre><p>Accept the <b>Allow USB debugging?</b> prompt on the TV (tick "Always allow"). <code>adb devices</code> should list <code>&lt;tv-ip&gt;:5555</code> as <code>device</code>.</p></li>
+<li><h3>Install Lucerra</h3><pre><code>adb -s &lt;tv-ip&gt;:5555 install -r Lucerra-Launcher-v0.1.0.apk</code></pre><p>It should print <code>Success</code>.</p></li>
+<li><h3>Make Lucerra the default Home</h3><p>The stock Mi Box home keeps winning the Home key, so disable it. This is reversible. On Windows, from a clone of the repo:</p><pre><code>powershell -File tools/debloat.ps1 -Device &lt;tv-ip&gt;:5555</code></pre><p>On macOS or Linux, run the same steps by hand:</p><pre><code>for p in com.google.android.tvlauncher com.google.android.apps.tv.launcherx com.google.android.tvrecommendations com.miui.tv.analytics com.xiaomi.statistic com.mitv.tvhome.michannel com.mitv.tvhome.mitvplus com.google.android.play.games; do
+  adb -s &lt;tv-ip&gt;:5555 shell pm disable-user --user 0 $p
+done
+adb -s &lt;tv-ip&gt;:5555 shell cmd package set-home-activity dev.raj.lucerra/.MainActivity</code></pre><p class="note">This disables the stock home, recommendations, Xiaomi analytics, the MiTV channel and Plus apps, and Play Games. Nothing is uninstalled.</p></li>
+<li><h3>Turn on the remote apps button</h3><pre><code>adb -s &lt;tv-ip&gt;:5555 shell settings put secure enabled_accessibility_services dev.raj.lucerra/dev.raj.lucerra.KeyService
+adb -s &lt;tv-ip&gt;:5555 shell settings put secure accessibility_enabled 1</code></pre><p>This lets the remote apps button open All Apps.</p></li>
+<li><h3>Turn on Now Playing</h3><pre><code>adb -s &lt;tv-ip&gt;:5555 shell cmd notification allow_listener dev.raj.lucerra/dev.raj.lucerra.NowPlayingListener</code></pre><p>The glass widget then shows Spotify or any media session.</p></li>
+<li><h3>Check it worked</h3><pre><code>adb -s &lt;tv-ip&gt;:5555 shell cmd package resolve-activity -a android.intent.action.MAIN -c android.intent.category.HOME</code></pre><p>The output should name <code>dev.raj.lucerra</code>. Then press Home on the remote: you should see five favourites over a wallpaper. Press Up for All Apps, and the apps button should do the same.</p></li>
+</ol>
+
+<h2 id="agent">With an agent</h2>
+<p>Use any coding agent that can run shell commands, such as Claude Code. Install platform-tools and download the APK first, then turn on developer options on the box (step 1 above) because that part needs the remote. Paste this prompt:</p>
+<pre><code>Set up Lucerra Launcher on my Xiaomi Mi Box with adb. The APK is at &lt;path-to&gt;/Lucerra-Launcher-v0.1.0.apk and the box is at &lt;tv-ip&gt;:5555.
+
+Rules:
+- Use only adb, and always pass -s &lt;tv-ip&gt;:5555.
+- Before changing anything, run adb connect and adb devices, and tell me if the device is not listed as "device".
+- Install the APK with adb install -r.
+- Ask me before disabling any package. Disable only these, with pm disable-user --user 0: com.google.android.tvlauncher, com.google.android.apps.tv.launcherx, com.google.android.tvrecommendations, com.miui.tv.analytics, com.xiaomi.statistic, com.mitv.tvhome.michannel, com.mitv.tvhome.mitvplus, com.google.android.play.games. Touch no other package.
+- Then run: adb shell cmd package set-home-activity dev.raj.lucerra/.MainActivity
+- Enable the apps button: adb shell settings put secure enabled_accessibility_services dev.raj.lucerra/dev.raj.lucerra.KeyService, then adb shell settings put secure accessibility_enabled 1
+- Enable Now Playing: adb shell cmd notification allow_listener dev.raj.lucerra/dev.raj.lucerra.NowPlayingListener
+- Verify with adb shell cmd package resolve-activity -a android.intent.action.MAIN -c android.intent.category.HOME and show me the output.
+- Print the exact undo commands at the end. Do not run them.</code></pre>
+<p class="note">Review each command the agent proposes. The prompt limits it to the packages above, and it should ask before disabling them.</p>
+
+<h2 id="undo">Undo everything</h2>
+<pre><code>powershell -File tools/restore.ps1 -Device &lt;tv-ip&gt;:5555</code></pre>
+<p>Or by hand, on any system:</p>
+<pre><code>for p in com.google.android.tvlauncher com.google.android.apps.tv.launcherx com.google.android.tvrecommendations com.miui.tv.analytics com.xiaomi.statistic com.mitv.tvhome.michannel com.mitv.tvhome.mitvplus com.google.android.play.games; do
+  adb -s &lt;tv-ip&gt;:5555 shell pm enable $p
+done
+adb -s &lt;tv-ip&gt;:5555 shell settings put secure enabled_accessibility_services ""
+adb -s &lt;tv-ip&gt;:5555 uninstall dev.raj.lucerra</code></pre>
+<p>Press Home and the stock Mi Box home is back.</p>
+
+<h2 id="fix">Troubleshooting</h2>
+<ul>
+<li><b>Connection refused or timed out:</b> check USB debugging is on, the IP is right and both devices share one network. Restart the adb server with <code>adb kill-server</code>, then connect again.</li>
+<li><b>Device shows "unauthorized":</b> accept the prompt on the TV. If it never appears, revoke USB debugging authorizations in Developer options and reconnect.</li>
+<li><b>Device shows "offline":</b> run <code>adb disconnect</code> and <code>adb connect</code> again, or reboot the box.</li>
+<li><b>Home still opens the stock launcher:</b> re-run the <code>set-home-activity</code> command from step 5 and confirm the disabled packages with <code>adb shell pm list packages -d</code>.</li>
+<li><b>Apps button does nothing:</b> run the two commands in step 6 again, then reboot the box.</li>
+<li><b>Now Playing stays empty:</b> start playback in the media app, then re-run step 7.</li>
+</ul>
+<p class="note">After a factory reset or a system update, repeat steps 5 to 7. Disabled packages and permissions can be reset.</p>
 </article></div><footer><div class="wrap"><p>Lucerra is free software under GPL-3.0. The name and logo are not licensed for forks. Not affiliated with NASA, Google, Xiaomi or any app shown. Wallpapers are NASA public domain.<br><span style="color:var(--ink)">Made by Rajarshi · &copy; 2026</span><br><a href="terms.html">Terms</a> · <a href="privacy.html">Privacy and cookies</a></p><p style="display:flex;align-items:center;gap:16px"><a class="btn ghost" style="padding:8px 18px" href="https://github.com/itsrajarshi/lucerra-launcher">Source</a><span class="social"><a href="https://github.com/itsrajarshi" aria-label="GitHub profile"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a><a href="https://www.linkedin.com/in/itsrajarshi" aria-label="LinkedIn profile"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a></span></p></div></footer><script src="site.js"></script></body></html>
