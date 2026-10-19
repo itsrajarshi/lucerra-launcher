@@ -1,6 +1,6 @@
 # Lucerra film: "A Better Way to Launch"
 
-43 s, 1920x1080, 30 fps Remotion film. Real TV captures only.
+14 s, 1920x1080, 30 fps Remotion film. Real TV captures only.
 
 ## Install
 ```bash
@@ -21,16 +21,15 @@ If Remotion cannot download its own Chromium, add
 Single frame: `npx remotion still src/index.ts LucerraFilm out.png --frame=600`.
 Regenerate audio: `python tools/make_audio.py`.
 
-## Scenes
+## Scenes (14.1 s, 422 frames)
 | # | Scene | Time | Frames | File |
 |---|---|---|---|---|
-| 1 | Problem: "TOO MUCH NOISE." | 0-6 s | 0-180 | `OpeningScene` |
-| 2 | Turning point: "LESS FRICTION. MORE FOCUS." | 6-11 s | 180-330 | `TransformationScene` |
-| 3 | Reveal: "MEET LUCERRA." | 11-18 s | 330-540 | `ProductRevealScene` |
-| 4 | Experience: home, arrange, All Apps, remote | 18-28 s | 540-840 | `ExperienceScene` |
-| 5 | Final brand frame and URL | 28-35 s | 840-1050 | `EndCardScene` |
+| 1 | Stock Android home, "TOO MUCH NOISE.", shift to Lucerra, "LESS FRICTION. MORE FOCUS." | 0-3.2 s | 0-96 | `StockScene` |
+| 2 | UI tour: focus, hold-OK menu, All Apps, remote button, Now Playing | 3.2-10.1 s | 96-304 | `ExperienceScene` |
+| 3 | Final frame: wordmark, tagline, URL | 10.1-14.1 s | 304-422 | `EndCardScene` |
 
-Timings live in `src/utils/timing.ts`; captions in `BEATS` in `ExperienceScene.tsx`.
+Timings live in `src/utils/timing.ts`. Pace of the tour: `SLOW` in `ExperienceScene.tsx`.
+`OpeningScene`, `TransformationScene` and `ProductRevealScene` are an unused longer opening, kept for reference.
 
 ## Replacing assets
 See `public/ASSETS.md`. Screenshots are 1920x1080 and swap in place under `public/shots/`.

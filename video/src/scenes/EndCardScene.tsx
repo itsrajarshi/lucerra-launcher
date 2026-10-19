@@ -19,7 +19,7 @@ const BOX = {x: 880, y: 770, w: 230};
  */
 export const EndCardScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const m = p(frame, 0, 46, inOut);
+  const m = p(frame, 0, 32, inOut);
   const cam = lerpCam(CAM_NP, {s: FRAME_END.s, fx: 960, fy: FRAME_CY, cx: FRAME_END.cx, cy: FRAME_END.cy}, m);
 
   const rem = {
@@ -27,10 +27,10 @@ export const EndCardScene: React.FC = () => {
     y: mix(REMOTE_START.y, REMOTE_END.y, m),
     w: mix(REMOTE_START.w, REMOTE_END.w, m),
   };
-  const box = p(frame, 44, 30, outExpo);
-  const bg = p(frame, 0, 60);
+  const box = p(frame, 28, 24, outExpo);
+  const bg = p(frame, 0, 40);
 
-  const ctaIn = p(frame, 72, 22, outExpo);
+  const ctaIn = p(frame, 52, 18, outExpo);
 
   return (
     <AbsoluteFill style={{background: C.bg}}>
@@ -51,14 +51,14 @@ export const EndCardScene: React.FC = () => {
       <Remote x={rem.x} y={rem.y} w={rem.w} />
 
       {/* Wordmark column */}
-      <div style={{position: 'absolute', left: 120, top: 236, opacity: p(frame, 30, 20), transform: `translateY(${(1 - p(frame, 30, 20, outExpo)) * 20}px)`}}>
+      <div style={{position: 'absolute', left: 120, top: 236, opacity: p(frame, 18, 16), transform: `translateY(${(1 - p(frame, 18, 16, outExpo)) * 20}px)`}}>
         <GeometricAssembly u={1} rot={0} core={1} size={96} />
       </div>
       <div style={{position: 'absolute', left: 120, top: 372}}>
-        <KineticText text="LUCERRA" frame={frame} start={32} size={112} tracking={0.14} />
+        <KineticText text="LUCERRA" frame={frame} start={20} size={112} tracking={0.14} />
       </div>
       <div style={{position: 'absolute', left: 124, top: 520}}>
-        <KineticText text="A calm home for Android TV." frame={frame} start={50} size={40} weight={300} tracking={0.01} stagger={0.8} color={C.dim} rise={16} />
+        <KineticText text="A calm home for Android TV." frame={frame} start={34} size={40} weight={300} tracking={0.01} stagger={0.8} color={C.dim} rise={16} />
       </div>
       <div style={{position: 'absolute', left: 124, top: 620, opacity: ctaIn, transform: `translateY(${(1 - ctaIn) * 16}px)`, fontFamily: F.display}}>
         <div

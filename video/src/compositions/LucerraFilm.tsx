@@ -2,9 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {AbsoluteFill, Audio, continueRender, delayRender, interpolate, Sequence, staticFile} from 'remotion';
 import {EndCardScene} from '../scenes/EndCardScene';
 import {ExperienceScene} from '../scenes/ExperienceScene';
-import {OpeningScene} from '../scenes/OpeningScene';
-import {ProductRevealScene} from '../scenes/ProductRevealScene';
-import {TransformationScene} from '../scenes/TransformationScene';
+import {StockScene} from '../scenes/StockScene';
 import '../styles/global.css';
 import {C} from '../styles/tokens';
 import {SCENES, TOTAL} from '../utils/timing';
@@ -26,19 +24,13 @@ export const LucerraFilm: React.FC = () => {
   const master = (f: number) => interpolate(f, [TOTAL - 30, TOTAL], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
     <AbsoluteFill style={{background: C.bg}}>
-      <Sequence from={S.opening.from} durationInFrames={S.opening.dur} name="1 Problem">
-        <OpeningScene />
+      <Sequence from={S.stock.from} durationInFrames={S.stock.dur} name="1 Stock to Lucerra">
+        <StockScene />
       </Sequence>
-      <Sequence from={S.transform.from} durationInFrames={S.transform.dur} name="2 Turning point">
-        <TransformationScene />
-      </Sequence>
-      <Sequence from={S.reveal.from} durationInFrames={S.reveal.dur} name="3 Product reveal">
-        <ProductRevealScene />
-      </Sequence>
-      <Sequence from={S.experience.from} durationInFrames={S.experience.dur} name="4 Experience">
+      <Sequence from={S.experience.from} durationInFrames={S.experience.dur} name="2 Experience">
         <ExperienceScene />
       </Sequence>
-      <Sequence from={S.end.from} durationInFrames={S.end.dur} name="5 Final frame">
+      <Sequence from={S.end.from} durationInFrames={S.end.dur} name="3 Final frame">
         <EndCardScene />
       </Sequence>
 

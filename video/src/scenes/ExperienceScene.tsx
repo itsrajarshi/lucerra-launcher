@@ -73,42 +73,34 @@ const Caption: React.FC<{b: Beat; frame: number}> = ({b, frame}) => {
  * Home focus -> hold OK menu -> Up to All Apps -> remote apps button.
  */
 // Everything below is authored at 30 fps pace; SLOW stretches it so each action has room to read.
-export const SLOW = 1.4;
+export const SLOW = 0.6116;
 
 export const ExperienceScene: React.FC = () => {
   const frame = useCurrentFrame() / SLOW;
   const cam = camAt(frame);
 
+  // Home -> All Apps: the home screen drifts up and softens while All Apps rises into place; it returns the same way.
+  // Sequential, never overlapping: the home screen eases up and out, then All Apps eases up into place (and the reverse on return).
+  const homeOut = p(frame, 162, 14, inOut);
+  const appsInA = p(frame, 176, 16, outExpo);
+  const appsOutA = p(frame, 224, 10, inOut);
+  const homeBack = p(frame, 232, 12, inOut);
+  const homeVis = 1 - homeOut * (1 - homeBack);
+  const homeY = -30 * homeOut * (1 - homeBack);
+
   const screens: Screen[] = [];
+  // Only the current focus image (and the one it is blending from) is drawn, so fading the home screen never shows older frames through it.
+  const idx = FOCUS.reduce((acc, s, i) => (frame >= s.from - 1 ? i : acc), 0);
+  const blend = idx === 0 ? 1 : p(frame, FOCUS[idx].from - 1, 3, linear);
   FOCUS.forEach((s, i) => {
-    screens.push({src: `shots/home_f${s.img}.jpg`, opacity: i === 0 ? 1 : p(frame, s.from - 1, 3, linear)});
+    const o = i === idx ? blend : i === idx - 1 ? 1 - blend : 0;
+    screens.push({src: `shots/home_f${s.img}.jpg`, opacity: o * homeVis, y: homeY});
   });
   screens.push({src: 'shots/menu.jpg', opacity: p(frame, 93, 3, linear) * (1 - p(frame, 150, 4, linear))});
   const npIn = p(frame, 296, 14, linear);
-  const appsIn = (p(frame, 175, 15, linear) * (1 - p(frame, 225, 6, linear)) + p(frame, 246, 16, linear)) * (1 - p(frame, 296, 14, linear));
-  screens.push({src: 'shots/apps.jpg', opacity: Math.min(1, appsIn), scale: 1 + 0.03 * (1 - p(frame, 246, 16))});
-
+  const appsIn = Math.min(1, appsInA * (1 - appsOutA) + p(frame, 246, 16, linear)) * (1 - npIn);
+  screens.push({src: 'shots/apps.jpg', opacity: appsIn, y: 36 * (1 - appsInA), scale: 1 + 0.03 * (1 - p(frame, 246, 16))});
   screens.push({src: 'shots/nowplaying.png', opacity: npIn});
-
-  // Match cut: the dock row lifts from the bottom of Home into the strip at the top of All Apps.
-  const lift = p(frame, 160, 30, inOut);
-  const rowO = p(frame, 158, 2, linear) * (1 - p(frame, 186, 8, linear));
-  const overlay = rowO > 0 ? (
-    <div
-      style={{
-        position: 'absolute',
-        left: 97,
-        top: 775 - 571 * lift,
-        width: 1726,
-        height: 250,
-        opacity: rowO,
-        overflow: 'hidden',
-        borderRadius: 40,
-      }}
-    >
-      <Img src={staticFile('shots/home_f0.jpg')} style={{position: 'absolute', left: -97, top: -775, width: 1920, height: 1080}} />
-    </div>
-  ) : null;
 
   // Remote: slides in as the first button press approaches.
   const rx = interpolate(p(frame, 62, 28, outExpo), [0, 1], [2100, REMOTE_START.x]);
@@ -121,7 +113,7 @@ export const ExperienceScene: React.FC = () => {
   return (
     <AbsoluteFill style={{background: C.bg}}>
       <CameraMotion cam={cam}>
-        <ProductFrame screens={screens} overlay={overlay} />
+        <ProductFrame screens={screens} />
       </CameraMotion>
       <div
         style={{

@@ -12,7 +12,7 @@ export const toCanvas = (x: number, y: number) => ({
   y: FRAME_CY - 360 + y * SCALE,
 });
 
-export type Screen = {src: string; opacity: number; scale?: number};
+export type Screen = {src: string; opacity: number; scale?: number; y?: number};
 
 type Props = {
   screens: Screen[];
@@ -42,7 +42,7 @@ export const ProductFrame: React.FC<Props> = ({screens, overlay, style}) => (
       <div style={{position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, transform: `scale(${SCALE})`, transformOrigin: '0 0'}}>
         {screens.map((s, i) =>
           s.opacity > 0.001 ? (
-            <AbsoluteFill key={`${i}-${s.src}`} style={{opacity: s.opacity, transform: s.scale ? `scale(${s.scale})` : undefined}}>
+            <AbsoluteFill key={`${i}-${s.src}`} style={{opacity: s.opacity, transform: `translateY(${s.y ?? 0}px) scale(${s.scale ?? 1})`}}>
               <Img src={staticFile(s.src)} style={{width: 1920, height: 1080}} />
             </AbsoluteFill>
           ) : null,
