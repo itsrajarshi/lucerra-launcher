@@ -84,3 +84,5 @@ header.top{background:rgba(246,247,251,.7);backdrop-filter:blur(22px) saturate(1
 @media(prefers-reduced-motion:reduce){.js .rv{opacity:0;transform:none;transition:opacity .25s ease}.js .rv.in{opacity:1}.btn:active{transform:none}}
 @media(prefers-reduced-transparency:reduce){header.top{background:var(--bg);backdrop-filter:none;-webkit-backdrop-filter:none}}
 @media(prefers-contrast:more){:root{--line:rgba(27,35,64,.45);--dim:#2c3552}}
+
+.social{display:inline-flex;gap:14px;vertical-align:middle}.social a{display:inline-flex;color:var(--dim);transition:transform .1s ease-out,color .2s ease}.social a:hover{color:var(--ink)}.social a:active{transform:scale(.92)}
