@@ -46,3 +46,6 @@ Pass `-Device <ip>:5555` if your box differs from 192.168.0.103. Measured on the
 - Back closes All Apps. The order is stored in app preferences, so it survives reboots.
 - The round Assistant bubble beside the clock opens Google Assistant.
 - Put a square `app/src/main/assets/profile.jpg` in the project to show your photo in the clock pill (otherwise the initial from `profile_initial` in `config.xml`).
+- Press **Up** again from the favourites strip to reach the Assistant bubble and the clock pill. The pill opens a dropdown: Wi-Fi, Settings, Power.
+- Hold OK on any app in the grid for Add to Home or Uninstall.
+- The remote's apps button (key 284) is claimed by the system and sent to TV Settings. To make it open All Apps, enable the Glass Home accessibility service (Settings > Accessibility, or `adb shell settings put secure enabled_accessibility_services dev.rajarshi.glasshome/dev.rajarshi.glasshome.KeyService` plus `accessibility_enabled 1`). The same service opens the Power dialog.

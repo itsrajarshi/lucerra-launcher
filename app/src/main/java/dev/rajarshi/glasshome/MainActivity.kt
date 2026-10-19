@@ -15,6 +15,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -87,12 +88,14 @@ class MainActivity : Activity() {
         rvGrid.layoutManager = GridLayoutManager(this, 5)
         listOf(rvDock, rvPinned, rvGrid).forEach { it.itemAnimator = null }
 
+        findViewById<View>(R.id.btnProfile).setOnClickListener { topMenu() }
         findViewById<View>(R.id.btnAssistant).setOnClickListener { launchAssistant() }
         loadProfile()
         Wallpapers.init(this)
         Wallpapers.next(animate = false)
         updateGreeting()
         reload()
+        if (intent.getBooleanExtra(EXTRA_ALL_APPS, false)) openSheet()
     }
 
     /** assets/profile.jpg (square, any size) if present, else the configured initial. */
@@ -147,7 +150,7 @@ class MainActivity : Activity() {
 
         rvDock.adapter = AppAdapter(pinnedItems, nameAbove = true, onFocus = ::showName, onLongClick = ::pinMenu, onClick = { open(it.launch) })
         rvPinned.adapter = AppAdapter(pinnedItems, nameAbove = false, onLongClick = ::pinMenu, onClick = { open(it.launch) })
-        rvGrid.adapter = AppAdapter(otherItems, nameAbove = false, onLongClick = ::togglePin, onClick = { open(it.launch) })
+        rvGrid.adapter = AppAdapter(otherItems, nameAbove = false, onLongClick = ::gridMenu, onClick = { open(it.launch) })
         if (pinnedItems.isEmpty()) appName.text = ""
         if (!sheetOpen) focusShelf(0)
     }
@@ -164,23 +167,65 @@ class MainActivity : Activity() {
         focusApp(app.pkg)
     }
 
+    /** One small glass dialog with up to three rows; rows are (label, action). */
+    private fun showMenu(title: String, rows: List<Pair<String, () -> Unit>>, topRight: Boolean = false) {
+        val d = Dialog(this)
+        d.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            if (topRight) {
+                setGravity(Gravity.TOP or Gravity.END)
+                val dp = resources.displayMetrics.density
+                attributes = attributes.apply { x = (48 * dp).toInt(); y = (84 * dp).toInt() }
+            }
+        }
+        d.setContentView(R.layout.dialog_pin_menu)
+        d.findViewById<TextView>(R.id.menuTitle).text = title
+        listOf(R.id.menuLeft, R.id.menuRight, R.id.menuRemove).forEachIndexed { n, id ->
+            val v = d.findViewById<TextView>(id)
+            val row = rows.getOrNull(n)
+            if (row == null) { v.visibility = View.GONE; return@forEachIndexed }
+            v.text = row.first
+            v.setOnClickListener { d.dismiss(); row.second() }
+        }
+        d.show()
+        d.findViewById<View>(R.id.menuLeft).takeIf { rows.isNotEmpty() }?.requestFocus()
+    }
+
     /** Hold OK on a favourite: move it along the shelf, or take it off Home. */
     private fun pinMenu(app: AppItem) {
         val i = pinnedItems.indexOfFirst { it.pkg == app.pkg }
-        val d = Dialog(this)
-        d.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        d.setContentView(R.layout.dialog_pin_menu)
-        d.findViewById<TextView>(R.id.menuTitle).text = app.label
-        fun row(id: Int, enabled: Boolean, act: () -> Unit) = d.findViewById<View>(id).apply {
-            if (!enabled) { visibility = View.GONE; return@apply }
-            setOnClickListener { d.dismiss(); act(); reload(); focusApp(app.pkg) }
+        fun act(f: () -> Unit) = { f(); reload(); focusApp(app.pkg) }
+        val rows = buildList {
+            if (i > 0) add(getString(R.string.move_left) to act { AppRepository.movePin(this@MainActivity, app.pkg, -1) })
+            if (i < pinnedItems.size - 1) add(getString(R.string.move_right) to act { AppRepository.movePin(this@MainActivity, app.pkg, 1) })
+            add(getString(R.string.remove_from_home) to act { AppRepository.togglePin(this@MainActivity, app.pkg) })
         }
-        row(R.id.menuLeft, i > 0) { AppRepository.movePin(this, app.pkg, -1) }
-        row(R.id.menuRight, i < pinnedItems.size - 1) { AppRepository.movePin(this, app.pkg, 1) }
-        row(R.id.menuRemove, true) { AppRepository.togglePin(this, app.pkg) }
-        d.show()
-        d.findViewById<View>(if (i > 0) R.id.menuLeft else if (i < pinnedItems.size - 1) R.id.menuRight else R.id.menuRemove).requestFocus()
+        showMenu(app.label, rows + uninstallRow(app))
     }
+
+    /** Hold OK on an app that is not a favourite: add it to Home, or uninstall it. */
+    private fun gridMenu(app: AppItem) = showMenu(
+        app.label,
+        listOf(getString(R.string.add_to_home) to { togglePin(app) }, uninstallRow(app)),
+    )
+
+    private fun uninstallRow(app: AppItem) =
+        getString(R.string.uninstall) to { open(Intent(Intent.ACTION_DELETE, android.net.Uri.parse("package:" + app.pkg))) }
+
+    /** The clock pill: Wi-Fi and Settings. */
+    private fun topMenu() = showMenu(
+        getString(R.string.quick_settings),
+        listOf(
+            getString(R.string.wifi) to { open(Intent(Settings.ACTION_WIFI_SETTINGS)) },
+            getString(R.string.settings) to { open(Intent(Settings.ACTION_SETTINGS)) },
+            getString(R.string.power) to {
+                val svc = KeyService.instance
+                if (svc != null) svc.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_POWER_DIALOG)
+                else Toast.makeText(this, R.string.power_needs_service, Toast.LENGTH_SHORT).show()
+            },
+        ),
+        topRight = true,
+    )
 
     private fun focusApp(pkg: String) {
         val pi = pinnedItems.indexOfFirst { it.pkg == pkg }
@@ -288,6 +333,7 @@ class MainActivity : Activity() {
     /** Home pressed while we are already showing: close All Apps and go back to the first tile. */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        if (intent.getBooleanExtra(EXTRA_ALL_APPS, false)) { openSheet(); return }
         if (intent.hasCategory(Intent.CATEGORY_HOME)) {
             if (sheetOpen) closeSheet()
             focusShelf(0)
@@ -298,7 +344,8 @@ class MainActivity : Activity() {
     @Suppress("OVERRIDE_DEPRECATION")
     override fun onBackPressed() { closeSheet() }
 
-    private companion object {
-        const val ROTATE_MS = 10 * 60 * 1000L
+    companion object {
+        const val EXTRA_ALL_APPS = "open_all_apps"
+        private const val ROTATE_MS = 10 * 60 * 1000L
     }
 }

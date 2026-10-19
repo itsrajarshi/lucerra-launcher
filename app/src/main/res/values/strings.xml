@@ -8,7 +8,7 @@
     <string name="good_afternoon">GOOD AFTERNOON</string>
     <string name="good_evening">GOOD EVENING</string>
     <string name="hint_all_apps">Press up for all apps</string>
-    <string name="pin_hint">Hold OK to pin, or to move or remove a favourite</string>
+    <string name="pin_hint">Hold OK for options</string>
     <string name="pinned">Pinned to Home</string>
     <string name="unpinned">Removed from Home</string>
     <string name="pins_full">Home is full: unpin one first</string>
@@ -17,4 +17,10 @@
     <string name="move_left">Move left</string>
     <string name="move_right">Move right</string>
     <string name="remove_from_home">Remove from Home</string>
+    <string name="key_service_desc">Lets the remote apps button open the Glass Home All Apps screen. It reads no other input.</string>
+    <string name="quick_settings">Quick settings</string>
+    <string name="add_to_home">Add to Home</string>
+    <string name="uninstall">Uninstall</string>
+    <string name="power">Power</string>
+    <string name="power_needs_service">Turn on the Glass Home accessibility service first</string>
 </resources>
