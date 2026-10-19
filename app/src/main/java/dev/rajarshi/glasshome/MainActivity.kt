@@ -1,6 +1,7 @@
 package dev.rajarshi.glasshome
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.app.Dialog
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -47,6 +48,8 @@ class MainActivity : Activity() {
     private var otherItems = emptyList<AppItem>()
     private var sheetOpen = false
     private var sheetSpring: SpringAnimation? = null
+    private var enterPending = false
+    private val bottom by lazy { findViewById<View>(R.id.bottom) }
     private val handler = Handler(Looper.getMainLooper())
     private val rotate = object : Runnable {
         override fun run() {
@@ -93,7 +96,8 @@ class MainActivity : Activity() {
         findViewById<View>(R.id.btnAssistant).setOnClickListener { launchAssistant() }
         loadProfile()
         Wallpapers.init(this)
-        Wallpapers.next(animate = false)
+        // Rebuilt after the system freed us behind a heavy app: keep the wallpaper, no hard cut.
+        if (Wallpapers.cur == null) Wallpapers.next(animate = false)
         updateGreeting()
         reload()
         if (intent.getBooleanExtra(EXTRA_ALL_APPS, false)) openSheet()
@@ -324,16 +328,40 @@ class MainActivity : Activity() {
 
     // --- plumbing ----------------------------------------------------------------------------
 
+    /** Apps grow out of the tile that launched them (system-driven, so it costs us no frames). */
     private fun open(intent: Intent) {
         try {
-            startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            val src = currentFocus
+            val opts = if (src != null && !Fx.reduced) {
+                ActivityOptions.makeScaleUpAnimation(src, 0, 0, src.width, src.height).toBundle()
+            } else null
+            startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), opts)
         } catch (e: Exception) {
             Toast.makeText(this, "Can't open that", Toast.LENGTH_SHORT).show()
         }
     }
 
+    /** Coming back to Home (Home key or Back from an app): hide the content now, reveal it once the window is up. */
+    private fun prepareEnter() {
+        if (Fx.reduced || sheetOpen) return
+        home.animate().cancel(); bottom.animate().cancel()
+        home.alpha = 0f
+        bottom.translationY = 24f * resources.displayMetrics.density
+        enterPending = true
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus || !enterPending) return
+        enterPending = false
+        home.animate().alpha(1f).setDuration(320).setInterpolator(DecelerateInterpolator(1.4f)).start()
+        bottom.animate().translationY(0f).setDuration(380).setInterpolator(DecelerateInterpolator(1.8f)).start()
+    }
+
     override fun onStart() {
         super.onStart()
+        if (everStarted) prepareEnter()
+        everStarted = true
         val f = IntentFilter().apply {
             addAction(Intent.ACTION_PACKAGE_ADDED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
@@ -347,6 +375,7 @@ class MainActivity : Activity() {
     }
 
     override fun onStop() {
+        if (enterPending) { enterPending = false; home.alpha = 1f; bottom.translationY = 0f }
         stopHint()
         handler.removeCallbacks(rotate)
         unregisterReceiver(packageReceiver)
@@ -370,6 +399,8 @@ class MainActivity : Activity() {
     companion object {
         const val EXTRA_ALL_APPS = "open_all_apps"
         private const val HINT_HOLD_MS = 5000L
+        /** Static: Home is often destroyed behind a heavy app, and the new instance must still animate in. */
+        private var everStarted = false
         private const val ROTATE_MS = 10 * 60 * 1000L
     }
 }
