@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Glass Home</string>
+    <string name="favorites">Favorites</string>
+    <string name="all_apps">All Apps</string>
+    <string name="settings">Settings</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="effects_full">Effects: Full</string>
+    <string name="effects_reduced">Effects: Reduced</string>
+</resources>

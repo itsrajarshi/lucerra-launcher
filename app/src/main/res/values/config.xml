@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shown in the Favorites row, in this order, if installed. -->
+    <string-array name="favorite_packages">
+        <item>com.google.android.youtube.tv</item>
+        <item>com.netflix.ninja</item>
+        <item>com.amazon.amazonvideo.livingroom</item>
+        <item>in.startv.hotstar</item>
+        <item>com.google.android.youtube.tvmusic</item>
+        <item>com.android.vending</item>
+    </string-array>
+
+    <!-- Packages kept out of both rows. Fill from `adb shell pm list packages` on the box. -->
+    <string-array name="hidden_packages" />
+</resources>
