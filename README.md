@@ -2,6 +2,8 @@
 
 A fast, ad-free home screen for Android TV and Google TV. Five apps, a glass dock, a calm wallpaper.
 
+**Website and setup guide: https://itsrajarshi.github.io/lucerra-launcher/**
+
 ![Stock home vs Lucerra](docs/images/before-after.jpg)
 
 ## What is Lucerra?
