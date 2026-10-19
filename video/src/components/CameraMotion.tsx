@@ -6,9 +6,12 @@ type Cam = {s: number; fx: number; fy: number; cx: number; cy: number};
 /** Zoom-in strength. 1 = as designed; the 9:16 reel lowers it so zoomed shots stay inside the frame. */
 export const camLimit = {k: 1};
 
-/** Camera as "put canvas point (fx,fy) at (cx,cy) and scale by s". Push-ins (s > 1) are eased back toward the neutral view by camLimit.k. */
+/** Camera as "put canvas point (fx,fy) at (cx,cy) and scale by s". Gentle push-ins (s > 1) are eased back toward the neutral view by camLimit.k. */
 export const camTransform = (cam: Cam) => {
-  const w = 1 - (1 - camLimit.k) * Math.min(1, Math.max(0, (cam.s - 1) / 0.2));
+  const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
+  // Gentle push-ins stay eased back; the deep close-up (Now Playing, s ~ 1.9) keeps full strength.
+  const base = camLimit.k + (1 - camLimit.k) * clamp01((cam.s - 1.4) / 0.5);
+  const w = 1 - (1 - base) * clamp01((cam.s - 1) / 0.2);
   const {s, fx, fy, cx, cy} = {
     s: 1 + (cam.s - 1) * w,
     fx: 960 + (cam.fx - 960) * w,
