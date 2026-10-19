@@ -125,3 +125,5 @@ html.lenis,html.lenis body{height:auto}
 .tv{border:clamp(7px,1.1vw,14px) solid #0b0e18;border-radius:18px;box-shadow:0 50px 90px -40px rgba(27,35,64,.55),inset 0 0 0 1px rgba(255,255,255,.08)}
 .tv::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.10),rgba(255,255,255,0) 38%)}
 @media(max-width:860px){.story-pin{padding-top:80px;gap:16px}.tvwrap{margin-top:18px}.story-on .lines{min-height:170px}}
+
+.docs{grid-template-columns:minmax(0,1fr);max-width:760px;margin:0 auto}
