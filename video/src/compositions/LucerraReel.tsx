@@ -1,13 +1,16 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {C, F} from '../styles/tokens';
+import {camLimit} from '../components/CameraMotion';
 import {LucerraFilm} from './LucerraFilm';
 
 const SCALE = 1080 / 1920;
 const FILM_H = 1080 * SCALE;
 
 /** 9:16 version for Reels / Shorts: the 16:9 film scaled to full width, centred, with a line above and below. */
-export const LucerraReel: React.FC = () => (
+export const LucerraReel: React.FC = () => {
+  camLimit.k = 0.15; // keep push-ins inside the 16:9 frame
+  return (
   <AbsoluteFill style={{background: `linear-gradient(180deg, ${C.bg} 0%, #0b1022 50%, ${C.bg} 100%)`, fontFamily: F.display}}>
     <div style={{position: 'absolute', left: 0, right: 0, top: 500, textAlign: 'center', color: C.ink, fontSize: 56, fontWeight: 500, letterSpacing: '0.01em'}}>
       A calm home for Android TV
@@ -20,3 +23,4 @@ export const LucerraReel: React.FC = () => (
     </div>
   </AbsoluteFill>
 );
+};
