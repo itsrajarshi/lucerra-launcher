@@ -11,7 +11,7 @@ import numpy as np
 from scipy.signal import butter, fftconvolve, lfilter
 
 SR = 44100
-DUR = 14.07
+DUR = 14.3
 N = int(SR * DUR)
 rs = np.random.RandomState(11)
 OUT = os.path.join(os.path.dirname(__file__), '..', 'public', 'audio')
@@ -143,7 +143,9 @@ SLOW = 1.635          # scene-4 stretch factor vs. original pace is now a compre
 def T4(t):
     """Old scene-4 time (18-28 s at original pace) -> film time (experience scene starts 3.2 s)."""
     return 3.2 + (t - 18.0) / SLOW
-END0 = 304 / 30
+END0 = 321 / 30
+def TF(f):
+    return 3.0 + f / 30
 
 A = dict(A1=55.0, E2=82.4, A2=110.0, E3=164.8, B3=246.9, Cs4=277.2, A3=220.0, E4=329.6, A4=440.0, B4=493.9, Cs5=554.4, E5=659.3, A5=880.0)
 
@@ -152,16 +154,15 @@ bed_dry = np.zeros((N, 2))
 bed = np.zeros((N, 2))
 place(bed_dry, pad([A['A1'], A['E2'], A['A2'], A['E3']], DUR, a=1.5, r=2.0, cutoff=700), 0.0, 0.34)
 place(bed_dry, pad([A['B3'], A['Cs4'], A['E4']], DUR - 1.7, a=1.2, r=2.0, cutoff=1500), 1.7, 0.22)   # brightens as Lucerra arrives
-for at, f in [(1.75, A['A5']), (T4(18.6), A['Cs5']), (T4(20.4), A['E5']), (T4(22.8), A['B4']), (T4(25.2), A['A4'])]:
+for at, f in [(1.75, A['A5']), (TF(10), A['Cs5']), (TF(70), A['E5']), (TF(130), A['B4']), (TF(195), A['A4'])]:
     place(bed, pluck(f, 2.4), at, 0.2, pan=np.sin(at))
 for i, f in enumerate([A['A3'], A['E4'], A['A4'], A['Cs5'], A['E5']]):
     place(bed, pluck(f, 3.2), END0 + 0.5 + i * 0.13, 0.26, pan=-0.3 + 0.15 * i)
 bed = reverb(bed, 3.0, 0.8) + bed_dry
 
 fx = np.zeros((N, 2))
-for at, f, g in [(18.93, 1500, 0.1), (19.33, 1750, 0.09), (19.73, 2000, 0.08), (20.07, 1650, 0.08), (21.1, 1100, 0.1),
-                 (23.0, 2300, 0.07), (23.27, 1400, 0.1), (26.0, 1250, 0.1), (27.9, 1900, 0.08)]:
-    place(fx, tick(f), T4(at), g, pan=0.15)
+for at, f, g in [(16, 1500, 0.1), (54, 1750, 0.09), (92, 1400, 0.1), (129, 1750, 0.08), (144, 1500, 0.08), (189, 2300, 0.08)]:
+    place(fx, tick(f), TF(at), g, pan=0.15)
 fx = reverb(fx, 1.5, 0.3)
 
 mix = 0.9 * bed + 0.85 * fx

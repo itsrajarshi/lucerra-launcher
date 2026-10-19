@@ -2,6 +2,7 @@
 
 | Asset | Where | Source / licence |
 |---|---|---|
+| `shots/nav.mp4`, `nav_*.jpg` | Real-time navigation recording | Screen-recorded from the author's Mi Box 4K over adb. |
 | `shots/*.jpg` | TV screenshots (home, menu, All Apps) | Captured by the author over adb from Lucerra running on their Mi Box 4K. |
 | `wp/w2.jpg`, `wp/w5.jpg` | Wallpapers | NASA imagery shipped in the launcher (public domain). |
 | `tiles/*.png` | App tile art | As displayed on the author's TV. Logos belong to their owners (Apple, YouTube, Netflix, Amazon, JioHotstar, etc.) and are shown only to depict the real home screen. |

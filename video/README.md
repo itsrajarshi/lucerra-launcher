@@ -21,14 +21,16 @@ If Remotion cannot download its own Chromium, add
 Single frame: `npx remotion still src/index.ts LucerraFilm out.png --frame=600`.
 Regenerate audio: `python tools/make_audio.py`.
 
-## Scenes (14.1 s, 422 frames)
+## Scenes (14.3 s, 429 frames)
 | # | Scene | Time | Frames | File |
 |---|---|---|---|---|
-| 1 | Stock Android home, "TOO MUCH NOISE.", shift to Lucerra, "LESS FRICTION. MORE FOCUS." | 0-3.2 s | 0-96 | `StockScene` |
-| 2 | UI tour: focus, hold-OK menu, All Apps, remote button, Now Playing | 3.2-10.1 s | 96-304 | `ExperienceScene` |
-| 3 | Final frame: wordmark, tagline, URL | 10.1-14.1 s | 304-422 | `EndCardScene` |
+| 1 | Stock Android home, "TOO MUCH NOISE.", shift to Lucerra, "LESS FRICTION. MORE FOCUS." | 0-3 s | 0-90 | `StockScene` |
+| 2 | Real-time navigation: dock focus, Up to All Apps, Home, Now Playing | 3-10.7 s | 90-321 | `ExperienceScene` |
+| 3 | Final frame: wordmark, tagline, URL | 10.7-14.3 s | 321-429 | `EndCardScene` |
 
-Timings live in `src/utils/timing.ts`. Pace of the tour: `SLOW` in `ExperienceScene.tsx`.
+Timings live in `src/utils/timing.ts`. Scene 2 plays `public/shots/nav.mp4`, a real screen recording of the TV
+(`adb shell screenrecord`) while keys were sent with `adb shell input keyevent`. Key moments are listed in
+`PRESSES` in `ExperienceScene.tsx` so the remote overlay matches. `nav_start.jpg` / `nav_end.jpg` are its first and last used frames.
 `OpeningScene`, `TransformationScene` and `ProductRevealScene` are an unused longer opening, kept for reference.
 
 ## Replacing assets

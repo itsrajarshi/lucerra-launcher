@@ -8,7 +8,9 @@ export const REMOTE_AR = 1373 / 352; // height / width of public/device/remote.p
 const BTN = {
   up: {x: 176 / 352, y: 286 / 1373},
   ok: {x: 176 / 352, y: 380 / 1373},
-  apps: {x: 75.5 / 352, y: 579 / 1373},
+  right: {x: 270 / 352, y: 380 / 1373},
+  down: {x: 176 / 352, y: 474 / 1373},
+  home: {x: 277 / 352, y: 579 / 1373},
 };
 
 export type Press = {button: keyof typeof BTN; /** 0..1 ripple progress */ t: number; hold?: boolean};

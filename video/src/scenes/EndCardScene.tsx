@@ -41,7 +41,7 @@ export const EndCardScene: React.FC = () => {
 
       <AbsoluteFill style={{transform: camTransform(cam), transformOrigin: '0 0'}}>
         <ProductFrame
-          screens={[{src: 'shots/nowplaying.png', opacity: 1}]}
+          screens={[{src: 'shots/nav_end.jpg', opacity: 1}]}
         />
       </AbsoluteFill>
 

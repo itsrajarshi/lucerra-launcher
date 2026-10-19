@@ -9,17 +9,17 @@ import {inOut, outExpo, p} from '../utils/easing';
 export const StockScene: React.FC = () => {
   const frame = useCurrentFrame();
   const inn = p(frame, 0, 16, outExpo);
-  const shift = p(frame, 50, 34, inOut);
-  const dip = 0.7 * Math.sin(Math.PI * p(frame, 46, 42, inOut));
-  const settle = 1.035 - 0.035 * p(frame, 0, 96, inOut);
-  const textOut = 1 - p(frame, 84, 10);
+  const shift = p(frame, 46, 30, inOut);
+  const dip = 0.7 * Math.sin(Math.PI * p(frame, 42, 38, inOut));
+  const settle = 1.035 - 0.035 * p(frame, 0, 90, inOut);
+  const textOut = 1 - p(frame, 78, 10);
   return (
     <AbsoluteFill style={{background: C.bg}}>
       <AbsoluteFill style={{opacity: inn, transform: `scale(${settle})`, transformOrigin: `960px ${FRAME_CY}px`}}>
         <ProductFrame
           screens={[
             {src: 'shots/stock.jpg', opacity: 1 - shift},
-            {src: 'shots/home_f0.jpg', opacity: shift},
+            {src: 'shots/nav_start.jpg', opacity: shift},
           ]}
           overlay={<div style={{position: 'absolute', inset: 0, background: C.bg, opacity: dip}} />}
         />
