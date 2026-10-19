@@ -20,3 +20,11 @@ function set(o){h.classList.toggle('open',o);b.setAttribute('aria-expanded',o)}
 b.addEventListener('click',function(){set(!h.classList.contains('open'))});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')set(false)});
 h.querySelectorAll('nav a').forEach(function(a){a.addEventListener('click',function(){set(false)})})})();
+
+(function(){var f=document.getElementById('fb');if(!f)return;
+f.addEventListener('submit',function(e){e.preventDefault();var d=new FormData(f),dev=d.get('device');
+var body=(d.get('body')||'')+(dev?'
+
+Device: '+dev:'');
+var u='https://github.com/itsrajarshi/lucerra-launcher/issues/new?title='+encodeURIComponent('['+d.get('type')+'] '+d.get('title'))+'&body='+encodeURIComponent(body);
+window.open(u,'_blank','noopener')})})();

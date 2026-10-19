@@ -142,3 +142,9 @@ html.lenis,html.lenis body{height:auto}
 @media(min-width:1600px){html{font-size:18px}.wrap{max-width:1280px}.tvwrap{width:min(1280px,92vw,max(300px,calc((100dvh - 360px)*1.7778)))}}
 /* short landscape screens */
 @media(max-height:600px) and (min-width:700px){.story-on .lines{min-height:120px}.story-pin{padding-top:76px;gap:8px}.tvwrap{margin-top:8px;width:min(1100px,92vw,max(300px,calc((100dvh - 250px)*1.7778)))}}
+
+.fb{display:grid;gap:16px;margin:24px 0}
+.fb label{display:grid;gap:6px;font-size:15px;color:var(--dim)}
+.fb input,.fb select,.fb textarea{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%}
+.fb input:focus,.fb select:focus,.fb textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+.fb .btn{justify-self:start;cursor:pointer;border:0}
