@@ -49,3 +49,15 @@ Pass `-Device <ip>:5555` if your box differs from 192.168.0.103. Measured on the
 - Press **Up** again from the favourites strip to reach the Assistant bubble and the clock pill. The pill opens a dropdown: Wi-Fi, Settings, Power.
 - Hold OK on any app in the grid for Add to Home or Uninstall.
 - The remote's apps button (key 284) is claimed by the system and sent to TV Settings. To make it open All Apps, enable the Glass Home accessibility service (Settings > Accessibility, or `adb shell settings put secure enabled_accessibility_services dev.rajarshi.glasshome/dev.rajarshi.glasshome.KeyService` plus `accessibility_enabled 1`). The same service opens the Power dialog.
+
+## Now playing
+
+While Spotify (or any app with a media session) is playing, a glass widget appears in the top bar with the title, artist, album art and previous / play-pause / next. After a pause it stays 20 seconds, then fades away.
+
+Android only shows other apps' media sessions to an app with notification access. Glass Home's listener class contains no code, so it reads no notifications. Grant it once:
+
+```bash
+adb shell cmd notification allow_listener dev.rajarshi.glasshome/dev.rajarshi.glasshome.NowPlayingListener
+```
+
+Use `cmd notification allow_listener` rather than writing the secure setting directly: the direct write overwrites the other allowed listeners and was not picked up by the system.

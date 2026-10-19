@@ -212,6 +212,93 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
+            <!-- Now playing: only visible while a media session is on. -->
+            <dev.rajarshi.glasshome.GlassFrame
+                android:id="@+id/nowPlaying"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:padding="3dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="3dp">
+
+                    <ImageView
+                        android:id="@+id/npArt"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:background="#33FFFFFF"
+                        android:padding="6dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_note" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp"
+                        android:layout_marginEnd="6dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/npTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:fontFamily="sans-serif-medium"
+                            android:maxWidth="150dp"
+                            android:singleLine="true"
+                            android:textColor="#FFFFFFFF"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/npArtist"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxWidth="150dp"
+                            android:singleLine="true"
+                            android:textColor="#CCFFFFFF"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/npPrev"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/focus_oval"
+                        android:contentDescription="@string/previous"
+                        android:focusable="true"
+                        android:padding="7dp"
+                        android:src="@drawable/ic_prev" />
+
+                    <ImageView
+                        android:id="@+id/npPlay"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/focus_oval"
+                        android:contentDescription="@string/play_pause"
+                        android:focusable="true"
+                        android:padding="7dp"
+                        android:src="@drawable/ic_pause" />
+
+                    <ImageView
+                        android:id="@+id/npNext"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/focus_oval"
+                        android:contentDescription="@string/next"
+                        android:focusable="true"
+                        android:padding="7dp"
+                        android:src="@drawable/ic_next" />
+                </LinearLayout>
+            </dev.rajarshi.glasshome.GlassFrame>
+
             <dev.rajarshi.glasshome.GlassFrame
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

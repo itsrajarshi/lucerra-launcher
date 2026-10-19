@@ -58,6 +58,9 @@ class MainActivity : Activity() {
             handler.postDelayed(this, ROTATE_MS)
         }
     }
+    private val nowPlaying by lazy { findViewById<View>(R.id.nowPlaying) }
+    private val np by lazy { NowPlaying(this) { showNowPlaying(it) } }
+    private val hideNowPlaying = Runnable { fadeNowPlaying(false) }
     private val packageReceiver = object : BroadcastReceiver() {
         override fun onReceive(c: Context, i: Intent) = reload()
     }
@@ -94,6 +97,15 @@ class MainActivity : Activity() {
 
         findViewById<View>(R.id.btnProfile).setOnClickListener { topMenu() }
         findViewById<View>(R.id.btnAssistant).setOnClickListener { launchAssistant() }
+        findViewById<View>(R.id.npPrev).setOnClickListener { np.previous() }
+        findViewById<View>(R.id.npPlay).setOnClickListener { np.toggle() }
+        findViewById<View>(R.id.npNext).setOnClickListener { np.next() }
+        findViewById<ImageView>(R.id.npArt).apply {
+            outlineProvider = object : ViewOutlineProvider() {
+                override fun getOutline(v: View, o: Outline) = o.setRoundRect(0, 0, v.width, v.height, 7f * resources.displayMetrics.density)
+            }
+            clipToOutline = true
+        }
         loadProfile()
         Wallpapers.init(this)
         // Rebuilt after the system freed us behind a heavy app: keep the wallpaper, no hard cut.
@@ -358,8 +370,36 @@ class MainActivity : Activity() {
         bottom.animate().translationY(0f).setDuration(380).setInterpolator(DecelerateInterpolator(1.8f)).start()
     }
 
+    /** Show the widget while something plays; after a pause keep it a while so play can be pressed again. */
+    private fun showNowPlaying(s: NowPlaying.State?) {
+        handler.removeCallbacks(hideNowPlaying)
+        if (s == null) { fadeNowPlaying(false); return }
+        findViewById<TextView>(R.id.npTitle).text = s.title
+        findViewById<TextView>(R.id.npArtist).text = s.artist
+        findViewById<ImageView>(R.id.npArt).apply {
+            if (s.art != null) { setPadding(0, 0, 0, 0); setImageBitmap(s.art) }
+            else { val p = (6 * resources.displayMetrics.density).toInt(); setPadding(p, p, p, p); setImageResource(R.drawable.ic_note) }
+        }
+        findViewById<ImageView>(R.id.npPlay).setImageResource(if (s.playing) R.drawable.ic_pause else R.drawable.ic_play)
+        fadeNowPlaying(true)
+        if (!s.playing) handler.postDelayed(hideNowPlaying, NP_PAUSED_MS)
+    }
+
+    private fun fadeNowPlaying(show: Boolean) {
+        val v = nowPlaying
+        v.animate().cancel()
+        if (show) {
+            if (v.visibility != View.VISIBLE) { v.alpha = 0f; v.visibility = View.VISIBLE }
+            if (Fx.reduced) v.alpha = 1f else v.animate().alpha(1f).setDuration(220).start()
+        } else if (v.visibility == View.VISIBLE) {
+            if (Fx.reduced) v.visibility = View.GONE
+            else v.animate().alpha(0f).setDuration(220).withEndAction { v.visibility = View.GONE }.start()
+        }
+    }
+
     override fun onStart() {
         super.onStart()
+        np.start()
         if (everStarted) prepareEnter()
         everStarted = true
         val f = IntentFilter().apply {
@@ -375,6 +415,8 @@ class MainActivity : Activity() {
     }
 
     override fun onStop() {
+        np.stop()
+        handler.removeCallbacks(hideNowPlaying)
         if (enterPending) { enterPending = false; home.alpha = 1f; bottom.translationY = 0f }
         stopHint()
         handler.removeCallbacks(rotate)
@@ -399,6 +441,7 @@ class MainActivity : Activity() {
     companion object {
         const val EXTRA_ALL_APPS = "open_all_apps"
         private const val HINT_HOLD_MS = 5000L
+        private const val NP_PAUSED_MS = 20_000L
         /** Static: Home is often destroyed behind a heavy app, and the new instance must still animate in. */
         private var everStarted = false
         private const val ROTATE_MS = 10 * 60 * 1000L

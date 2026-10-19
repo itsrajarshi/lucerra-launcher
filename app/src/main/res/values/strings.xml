@@ -23,4 +23,7 @@
     <string name="uninstall">Uninstall</string>
     <string name="power">Power</string>
     <string name="power_needs_service">Turn on the Glass Home accessibility service first</string>
+    <string name="previous">Previous</string>
+    <string name="play_pause">Play or pause</string>
+    <string name="next">Next</string>
 </resources>
