@@ -23,8 +23,6 @@ h.querySelectorAll('nav a').forEach(function(a){a.addEventListener('click',funct
 
 (function(){var f=document.getElementById('fb');if(!f)return;
 f.addEventListener('submit',function(e){e.preventDefault();var d=new FormData(f),dev=d.get('device');
-var body=(d.get('body')||'')+(dev?'
-
-Device: '+dev:'');
+var body=(d.get('body')||'')+(dev?'\n\nDevice: '+dev:'');
 var u='https://github.com/itsrajarshi/lucerra-launcher/issues/new?title='+encodeURIComponent('['+d.get('type')+'] '+d.get('title'))+'&body='+encodeURIComponent(body);
 window.open(u,'_blank','noopener')})})();
