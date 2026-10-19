@@ -22,8 +22,8 @@ class WallpaperView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet?
         // Darken top and bottom so clock and dock stay legible on any wallpaper.
         scrim.shader = LinearGradient(
             0f, 0f, 0f, h.toFloat(),
-            intArrayOf(0x800B0F14.toInt(), 0x000B0F14, 0x000B0F14, 0xA60B0F14.toInt()),
-            floatArrayOf(0f, 0.3f, 0.6f, 1f), Shader.TileMode.CLAMP,
+            intArrayOf(0xB30B0F14.toInt(), 0x000B0F14, 0x000B0F14, 0x400B0F14, 0xB80B0F14.toInt()),
+            floatArrayOf(0f, 0.26f, 0.5f, 0.68f, 1f), Shader.TileMode.CLAMP,
         )
     }
 

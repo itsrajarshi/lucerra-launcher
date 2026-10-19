@@ -20,6 +20,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.TextView
@@ -131,6 +132,24 @@ class MainActivity : Activity() {
     }
 
     private fun launchAssistant() = open(Intent(Intent.ACTION_ASSIST))
+
+    /** The "press up" hint fades in when Home shows, stays a few seconds, then fades away for good. */
+    private fun startHint() {
+        val hint = findViewById<View>(R.id.hint)
+        hint.animate().cancel()
+        if (sheetOpen) { hint.alpha = 0f; return }
+        if (Fx.reduced) { hint.alpha = 1f; return }
+        hint.alpha = 0f
+        hint.animate().alpha(1f).setStartDelay(500).setDuration(700)
+            .setInterpolator(AccelerateDecelerateInterpolator())
+            .withEndAction {
+                hint.animate().alpha(0f).setStartDelay(HINT_HOLD_MS).setDuration(900)
+                    .setInterpolator(AccelerateDecelerateInterpolator()).start()
+            }
+            .start()
+    }
+
+    private fun stopHint() = findViewById<View>(R.id.hint).animate().cancel()
 
     private fun updateGreeting() {
         val h = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
@@ -262,6 +281,7 @@ class MainActivity : Activity() {
     private fun openSheet() {
         if (sheetOpen) return
         sheetOpen = true
+        stopHint()
         home.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
         sheet.visibility = View.VISIBLE
         slideSheetTo(0f, from = resources.displayMetrics.heightPixels.toFloat())
@@ -272,6 +292,7 @@ class MainActivity : Activity() {
     private fun closeSheet() {
         if (!sheetOpen) return
         sheetOpen = false
+        startHint()
         home.visibility = View.VISIBLE
         home.descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
         slideSheetTo(resources.displayMetrics.heightPixels.toFloat(), from = sheet.translationY)
@@ -321,10 +342,12 @@ class MainActivity : Activity() {
         }
         registerReceiver(packageReceiver, f)
         updateGreeting()
+        startHint()
         handler.postDelayed(rotate, ROTATE_MS)
     }
 
     override fun onStop() {
+        stopHint()
         handler.removeCallbacks(rotate)
         unregisterReceiver(packageReceiver)
         super.onStop()
@@ -346,6 +369,7 @@ class MainActivity : Activity() {
 
     companion object {
         const val EXTRA_ALL_APPS = "open_all_apps"
+        private const val HINT_HOLD_MS = 5000L
         private const val ROTATE_MS = 10 * 60 * 1000L
     }
 }

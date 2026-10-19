@@ -32,10 +32,10 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
                 android:letterSpacing="0.18"
-                android:shadowColor="#660B0F14"
-                android:shadowRadius="6"
-                android:textColor="#D9FFFFFF"
-                android:textSize="11sp" />
+                android:shadowColor="#99000000"
+                android:shadowRadius="10"
+                android:textColor="#FFFFFFFF"
+                android:textSize="13sp" />
 
             <TextClock
                 android:layout_width="wrap_content"
@@ -44,8 +44,8 @@
                 android:fontFamily="sans-serif-light"
                 android:format12Hour="EEEE d MMMM"
                 android:format24Hour="EEEE d MMMM"
-                android:shadowColor="#660B0F14"
-                android:shadowRadius="8"
+                android:shadowColor="#99000000"
+                android:shadowRadius="10"
                 android:textColor="#FFFFFFFF"
                 android:textSize="26sp" />
         </LinearLayout>
@@ -59,21 +59,10 @@
             android:clipToPadding="false"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/hint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="6dp"
-                android:drawableTop="@drawable/ic_chevron_up"
-                android:drawablePadding="2dp"
-                android:fontFamily="sans-serif-medium"
-                android:gravity="center"
-                android:shadowColor="#B30B0F14"
-                android:shadowRadius="8"
-                android:text="@string/hint_all_apps"
-                android:textColor="#FFFFFFFF"
-                android:textSize="12sp" />
+            <!-- App name on the left, the "press up" hint centred on the same row, right above the shelf. -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/appName"
@@ -83,10 +72,27 @@
                 android:layout_marginBottom="10dp"
                 android:fontFamily="sans-serif-medium"
                 android:letterSpacing="-0.01"
-                android:shadowColor="#660B0F14"
-                android:shadowRadius="10"
+                android:shadowColor="#99000000"
+                android:shadowRadius="12"
                 android:textColor="#FFFFFFFF"
                 android:textSize="26sp" />
+
+            <TextView
+                android:id="@+id/hint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|bottom"
+                android:layout_marginBottom="8dp"
+                android:drawableTop="@drawable/ic_chevron_up"
+                android:drawablePadding="2dp"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:shadowColor="#CC000000"
+                android:shadowRadius="10"
+                android:text="@string/hint_all_apps"
+                android:textColor="#FFFFFFFF"
+                android:textSize="12sp" />
+            </FrameLayout>
 
             <!-- The shelf: one glass surface holding the favourites. -->
             <dev.rajarshi.glasshome.GlassFrame
@@ -161,7 +167,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
                         android:text="@string/pin_hint"
-                        android:textColor="#99FFFFFF"
+                        android:textColor="#CCFFFFFF"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -214,12 +220,12 @@
 
                 <ImageView
                     android:id="@+id/btnAssistant"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:contentDescription="Google Assistant"
                     android:focusable="true"
                     android:background="@drawable/focus_oval"
-                    android:padding="10dp"
+                    android:padding="5dp"
                     android:src="@drawable/ic_assistant" />
             </dev.rajarshi.glasshome.GlassFrame>
 
@@ -249,7 +255,7 @@
                         android:format12Hour="h:mm a"
                         android:format24Hour="HH:mm"
                         android:textColor="#FFFFFFFF"
-                        android:textSize="14sp" />
+                        android:textSize="15sp" />
     
                     <FrameLayout
                         android:layout_width="28dp"
