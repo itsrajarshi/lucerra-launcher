@@ -22,13 +22,13 @@ class WallpaperView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet?
         // Darken top and bottom so clock and dock stay legible on any wallpaper.
         scrim.shader = LinearGradient(
             0f, 0f, 0f, h.toFloat(),
-            intArrayOf(0x66000000, 0x00000000, 0x00000000, 0x99000000.toInt()),
-            floatArrayOf(0f, 0.25f, 0.6f, 1f), Shader.TileMode.CLAMP,
+            intArrayOf(0x800B0F14.toInt(), 0x000B0F14, 0x000B0F14, 0xA60B0F14.toInt()),
+            floatArrayOf(0f, 0.3f, 0.6f, 1f), Shader.TileMode.CLAMP,
         )
     }
 
     override fun onDraw(canvas: Canvas) {
-        canvas.drawColor(0xFF000000.toInt())
+        canvas.drawColor(0xFF0B0F14.toInt())
         Wallpapers.prev?.let { canvas.drawBitmap(it, null, dst, paint) }
         Wallpapers.cur?.let {
             paint.alpha = (Wallpapers.fade * 255).toInt()

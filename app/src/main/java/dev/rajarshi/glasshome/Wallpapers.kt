@@ -77,9 +77,17 @@ object Wallpapers {
 
     /** Full 1920x1080, no downscale: the photo is the whole point of the screen. */
     private fun decode(name: String): Bitmap? = try {
-        assets!!.open("wallpapers/$name").use { BitmapFactory.decodeStream(it) }
+        assets!!.open("wallpapers/$name").use { BitmapFactory.decodeStream(it) }?.let(::cropTo169)
     } catch (e: Exception) {
         null
+    }
+
+    /** Centre-crop so photos of any aspect fill 16:9 without stretching. */
+    private fun cropTo169(b: Bitmap): Bitmap {
+        val h = minOf(b.height, b.width * 9 / 16)
+        val w = h * 16 / 9
+        if (w == b.width && h == b.height) return b
+        return Bitmap.createBitmap(b, (b.width - w) / 2, (b.height - h) / 2, w, h).also { b.recycle() }
     }
 
     private fun swapIn(sharp: Bitmap, blur: Bitmap, animate: Boolean) {

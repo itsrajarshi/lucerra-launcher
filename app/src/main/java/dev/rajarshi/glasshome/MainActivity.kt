@@ -129,7 +129,9 @@ class MainActivity : Activity() {
         appName.text = app.label
         if (!Fx.reduced) {
             appName.alpha = 0.2f
-            appName.animate().alpha(1f).setDuration(160).start()
+            appName.translationY = 6f * resources.displayMetrics.density
+            appName.animate().alpha(1f).translationY(0f).setDuration(220)
+                .setInterpolator(android.view.animation.DecelerateInterpolator(1.6f)).start()
         }
     }
 
