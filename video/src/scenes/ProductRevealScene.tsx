@@ -35,6 +35,10 @@ export const ProductRevealScene: React.FC = () => {
   const ts = mix(1, 0.46, mt);
 
   const rise = p(frame, 150, 55, outExpo);
+  // The shift: stock Android home dips to dark, Lucerra home comes up.
+  const shift = p(frame, 262, 36, inOut);
+  const dip = 0.7 * Math.sin(Math.PI * p(frame, 258, 44, inOut));
+  const settle = 1.035 - 0.035 * p(frame, 205, 95, inOut);
   const lockupFade = 1 - p(frame, 200, 16);
 
   return (
@@ -69,9 +73,15 @@ export const ProductRevealScene: React.FC = () => {
         </div>
       </AbsoluteFill>
 
-      <AbsoluteFill style={{perspective: 2200, opacity: rise}}>
+      <AbsoluteFill style={{perspective: 2200, opacity: rise, transform: `scale(${settle})`, transformOrigin: '960px 616px'}}>
         <div style={{position: 'absolute', inset: 0, transform: `translateY(${(1 - rise) * 220}px) rotateX(${(1 - rise) * 18}deg) scale(${0.92 + 0.08 * rise})`, transformOrigin: '50% 100%'}}>
-          <ProductFrame screens={[{src: 'shots/home_f0.jpg', opacity: 1}]} />
+          <ProductFrame
+            screens={[
+              {src: 'shots/stock.jpg', opacity: 1 - shift, scale: 1 + 0.025 * p(frame, 205, 90)},
+              {src: 'shots/home_f0.jpg', opacity: shift},
+            ]}
+            overlay={<div style={{position: 'absolute', inset: 0, background: C.bg, opacity: dip}} />}
+          />
         </div>
       </AbsoluteFill>
     </AbsoluteFill>

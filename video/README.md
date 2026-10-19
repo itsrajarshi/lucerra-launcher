@@ -1,6 +1,6 @@
 # Lucerra film: "A Better Way to Launch"
 
-35 s, 1920x1080, 30 fps Remotion film. Real TV captures only.
+43 s, 1920x1080, 30 fps Remotion film. Real TV captures only.
 
 ## Install
 ```bash

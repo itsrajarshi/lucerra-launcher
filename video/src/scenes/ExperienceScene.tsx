@@ -72,8 +72,11 @@ const Caption: React.FC<{b: Beat; frame: number}> = ({b, frame}) => {
  * Scene 4 (18-28 s): four real interactions on the real TV screenshots, chained by camera moves.
  * Home focus -> hold OK menu -> Up to All Apps -> remote apps button.
  */
+// Everything below is authored at 30 fps pace; SLOW stretches it so each action has room to read.
+export const SLOW = 1.4;
+
 export const ExperienceScene: React.FC = () => {
-  const frame = useCurrentFrame();
+  const frame = useCurrentFrame() / SLOW;
   const cam = camAt(frame);
 
   const screens: Screen[] = [];

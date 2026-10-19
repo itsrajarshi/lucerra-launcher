@@ -2,7 +2,7 @@
 so the result can be distributed with the video.
 
 Writes public/audio/bed.wav (ambience + music) and public/audio/fx.wav (hits, whooshes, UI ticks).
-Replace either file with your own 35 s, 44.1 kHz stereo WAV to change the sound.
+Replace either file with your own 42.9 s, 44.1 kHz stereo WAV to change the sound.
 """
 import os
 import wave
@@ -11,7 +11,7 @@ import numpy as np
 from scipy.signal import butter, fftconvolve, lfilter
 
 SR = 44100
-DUR = 35.0
+DUR = 42.87
 N = int(SR * DUR)
 rs = np.random.RandomState(11)
 OUT = os.path.join(os.path.dirname(__file__), '..', 'public', 'audio')
@@ -139,6 +139,13 @@ def fade(x, a=0.02):
     return x
 
 
+SLOW = 1.4
+def T4(t):
+    """Old scene-4 time (18-28 s at original pace) -> stretched film time (scene starts 21.33 s)."""
+    return 21.33 + (t - 18.0) * SLOW
+END0 = 37.2  # end scene start
+
+
 A = dict(A1=55.0, E2=82.4, A2=110.0, E3=164.8, B3=246.9, Cs4=277.2, A3=220.0, E4=329.6, A4=440.0, B4=493.9, Cs5=554.4, E5=659.3, A5=880.0)
 
 # ---------------------------------------------------------------- bed
@@ -152,6 +159,8 @@ d += lp(saw(A['A1'], len(d)), 220) * 0.5 + np.sin(2 * np.pi * A['E2'] * t) * 0.2
 d *= np.linspace(0.12, 1.0, len(d)) ** 2.2
 n_cut = int(0.03 * SR)
 d[-n_cut:] *= np.linspace(1, 0, n_cut)
+d = np.concatenate([d, np.zeros(int(1.5 * SR))])
+d[int(5.2 * SR):] *= np.linspace(1, 0, len(d) - int(5.2 * SR))   # decays under the pad: no gap
 place(bed_dry, d, 0.0, 0.5)
 # Uneasy upper layer: slow tremolo on a minor second that resolves away at the cut.
 t = t_(int(5.0 * SR))
@@ -161,17 +170,18 @@ up[-n_cut:] *= np.linspace(1, 0, n_cut)
 place(bed_dry, up, 1.0, 0.06)
 
 # 6.0-6.45 s: silence. Scene 2: a quiet pad grows.
-place(bed_dry, pad([A['A2'], A['E3']], 5.2, a=2.5, r=1.2, cutoff=700), 6.45, 0.28)
+place(bed_dry, pad([A['A1'], A['E2'], A['A2']], 6.5, a=1.2, r=2.0, cutoff=500), 5.0, 0.3)
 # Scene 3: A major add9 swells in with the disc, peaks at the logo.
 chord = [A['A2'], A['E3'], A['B3'], A['Cs4']]
-place(bed_dry, pad(chord, 11.5, a=2.2, r=2.0, cutoff=1400), 11.0, 0.42)
+place(bed_dry, pad(chord, 31.0, a=3.0, r=3.0, cutoff=1400), 10.5, 0.4)   # holds through the whole UI tour
+place(bed_dry, np.sin(2*np.pi*A['A1']*t_(int(36*SR)))*env_ar(int(36*SR), 4.0, 3.0, 1.0), 4.5, 0.3)   # continuous sub
 # Scene 4 motif: sparse, four notes.
-for at, f in [(18.6, A['Cs5']), (20.4, A['E5']), (22.8, A['B4']), (25.2, A['A4'])]:
+for at, f in [(T4(18.6), A['Cs5']), (T4(20.4), A['E5']), (T4(22.8), A['B4']), (T4(25.2), A['A4'])]:
     place(bed, pluck(f, 2.4), at, 0.26, pan=np.sin(at))
 # Final chord and arpeggio.
 for i, f in enumerate([A['A3'], A['E4'], A['A4'], A['Cs5'], A['E5']]):
-    place(bed, pluck(f, 3.2), 31.2 + i * 0.13, 0.3, pan=-0.3 + 0.15 * i)
-place(bed_dry, pad([A['A2'], A['E3'], A['A3'], A['B3'], A['Cs4'], A['E4']], 3.8, a=0.25, r=2.5, cutoff=2200), 31.3, 0.5)
+    place(bed, pluck(f, 3.2), END0 + 1.9 + i * 0.13, 0.3, pan=-0.3 + 0.15 * i)
+place(bed_dry, pad([A['A2'], A['E3'], A['A3'], A['B3'], A['Cs4'], A['E4']], 5.0, a=0.25, r=3.0, cutoff=2200), END0 + 2.0, 0.5)
 bed = reverb(bed, 3.2, 0.9) + bed_dry
 
 # ---------------------------------------------------------------- fx
@@ -198,16 +208,18 @@ place(fx, impact(1.2, 55, 42), 17.7, 0.28)
 # Scene 4: UI ticks, each its own pitch/level.
 for at, f, g in [(18.93, 1500, 0.2), (19.33, 1750, 0.18), (19.73, 2000, 0.17), (20.07, 1650, 0.16), (20.5, 1100, 0.2),
                  (23.27, 1400, 0.2), (26.0, 1250, 0.22)]:
-    place(fx, tick(f), at, g, pan=0.15)
-place(fx, impact(0.9, 90, 60), 21.1, 0.3)       # menu rises
-place(fx, tick(2300), 23.0, 0.12)               # menu dismisses
-place(fx, noise_sweep(0.8, 700, 3500, shape=1.4), 23.33, 0.12)   # row lift
-place(fx, noise_sweep(0.5, 1200, 4500, shape=1.4), 26.2, 0.1)    # apps open
+    place(fx, tick(f), T4(at), g, pan=0.15)
+place(fx, noise_sweep(1.6, 400, 4000, shape=1.6), 19.5, 0.14)   # stock Android home -> Lucerra home
+place(fx, impact(1.2, 70, 44), 20.1, 0.22)
+place(fx, impact(0.9, 90, 60), T4(21.1), 0.3)       # menu rises
+place(fx, tick(2300), T4(23.0), 0.12)               # menu dismisses
+place(fx, noise_sweep(1.0, 700, 3500, shape=1.4), T4(23.33), 0.12)   # row lift
+place(fx, noise_sweep(0.7, 1200, 4500, shape=1.4), T4(26.2), 0.1)    # apps open
 # Now Playing push, then pull back and settle (end scene starts 29.33 s)
-place(fx, tick(1900), 28.45, 0.16, pan=0.2)
-place(fx, noise_sweep(1.6, 250, 3200, shape=1.8), 29.33, 0.24)
-place(fx, impact(1.4, 64, 40), 30.9, 0.45)
-place(fx, noise_sweep(2.6, 2000, 9000, shape=1.2, rise=False), 31.35, 0.1)
+place(fx, tick(1900), T4(28.45), 0.16, pan=0.2)
+place(fx, noise_sweep(1.6, 250, 3200, shape=1.8), END0, 0.24)
+place(fx, impact(1.4, 64, 40), END0 + 1.6, 0.45)
+place(fx, noise_sweep(2.6, 2000, 9000, shape=1.2, rise=False), END0 + 2.05, 0.1)
 fx = reverb(fx, 2.2, 0.5)
 
 # ---------------------------------------------------------------- level so the Remotion mix (0.9 bed + 0.85 fx) peaks at -1.5 dBFS

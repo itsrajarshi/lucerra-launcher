@@ -6,10 +6,10 @@ export const H = 1080;
 export const SCENES = {
   opening: {from: 0, dur: 180},
   transform: {from: 180, dur: 150},
-  reveal: {from: 330, dur: 230},
-  experience: {from: 540, dur: 340},
-  end: {from: 880, dur: 170},
+  reveal: {from: 330, dur: 310},
+  experience: {from: 640, dur: 476},
+  end: {from: 1116, dur: 170},
 } as const;
 
-export const TOTAL = 1050;
+export const TOTAL = 1286;
 export const sec = (s: number) => Math.round(s * FPS);
