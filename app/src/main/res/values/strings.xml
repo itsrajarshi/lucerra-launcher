@@ -7,6 +7,7 @@
     <string name="good_morning">GOOD MORNING</string>
     <string name="good_afternoon">GOOD AFTERNOON</string>
     <string name="good_evening">GOOD EVENING</string>
+    <string name="hint_fullscreen">Press up for full screen</string>
     <string name="effects_full">Effects: full</string>
     <string name="effects_reduced">Effects: reduced</string>
 </resources>

@@ -37,3 +37,6 @@ powershell -File tools/debloat.ps1     # disables stock home, recommendations, X
 powershell -File tools/restore.ps1     # puts everything back
 ```
 Pass `-Device <ip>:5555` if your box differs from 192.168.0.103. Measured on the box: about 67 MB PSS, ~1% janky frames while scrolling.
+
+## Full screen and profile
+Press Up on the shelf to hide it and see the whole wallpaper; Up again focuses the time/profile pill (opens Settings). Down or Back returns. Put a square photo at `app/src/main/assets/profile.jpg` for your avatar, otherwise the `profile_initial` letter in `res/values/config.xml` is shown.

@@ -30,7 +30,14 @@ class MainActivity : Activity() {
     private lateinit var appName: TextView
     private lateinit var greeting: TextView
 
+    private lateinit var bottom: View
+    private lateinit var hint: View
+    private lateinit var btnProfile: View
+    private lateinit var prefs: android.content.SharedPreferences
+
     private var sheetOpen = false
+    private var fullScreen = false
+    private var shelfPos = 0
     private var sheetSpring: SpringAnimation? = null
     private val handler = Handler(Looper.getMainLooper())
     private val rotate = object : Runnable {
@@ -55,7 +62,7 @@ class MainActivity : Activity() {
         super.onCreate(state)
         setContentView(R.layout.activity_main)
 
-        val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
+        prefs = getSharedPreferences("prefs", MODE_PRIVATE)
         val animationsOff = Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
         Fx.reduced = prefs.getBoolean("reduced", animationsOff)
 
@@ -72,8 +79,12 @@ class MainActivity : Activity() {
         rvDock.itemAnimator = null
         rvGrid.itemAnimator = null
 
-        findViewById<View>(R.id.btnWifi).bind { open(Intent(Settings.ACTION_WIFI_SETTINGS)) }
-        findViewById<View>(R.id.btnSettings).apply {
+        bottom = findViewById(R.id.bottom)
+        hint = findViewById(R.id.hint)
+        hint.visibility = if (prefs.getInt("fsUses", 0) < 3) View.VISIBLE else View.GONE
+        loadProfile()
+
+        btnProfile = findViewById<View>(R.id.btnProfile).apply {
             bind { open(Intent(Settings.ACTION_SETTINGS)) }
             // Long-press toggles effects: opaque panels and no motion. Auto-on if system animations are off.
             setOnLongClickListener {
@@ -93,6 +104,74 @@ class MainActivity : Activity() {
         Wallpapers.next(animate = false)
         updateGreeting()
         reload()
+    }
+
+    /** assets/profile.jpg (square, any size) if present, else the configured initial. */
+    private fun loadProfile() {
+        findViewById<TextView>(R.id.avatarInitial).text = getString(R.string.profile_initial)
+        try {
+            val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            assets.open("profile.jpg").use { android.graphics.BitmapFactory.decodeStream(it, null, bounds) }
+            val opts = android.graphics.BitmapFactory.Options().apply { inSampleSize = maxOf(1, bounds.outWidth / 128) }
+            val bmp = assets.open("profile.jpg").use { android.graphics.BitmapFactory.decodeStream(it, null, opts) } ?: return
+            findViewById<android.widget.ImageView>(R.id.avatar).apply {
+                setImageBitmap(bmp)
+                outlineProvider = object : android.view.ViewOutlineProvider() {
+                    override fun getOutline(v: View, o: android.graphics.Outline) = o.setOval(0, 0, v.width, v.height)
+                }
+                clipToOutline = true
+                visibility = View.VISIBLE
+            }
+        } catch (e: java.io.IOException) {
+            // no photo shipped: the initial circle stays
+        }
+    }
+
+    // --- Full screen: wallpaper only; the shelf slides away ---------------------------------
+
+    private fun enterFullScreen() {
+        if (fullScreen) return
+        fullScreen = true
+        prefs.edit().putInt("fsUses", prefs.getInt("fsUses", 0) + 1).apply()
+        shelfPos = rvDock.findContainingViewHolder(currentFocus ?: rvDock)?.adapterPosition?.takeIf { it >= 0 } ?: shelfPos
+        (bottom as ViewGroup).descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
+        bottom.clearFocus()
+        btnProfile.isFocusable = false
+        val dy = bottom.height.toFloat()
+        if (Fx.reduced) { bottom.alpha = 0f; bottom.visibility = View.INVISIBLE; return }
+        bottom.animate().translationY(dy).alpha(0f).setDuration(320)
+            .setInterpolator(android.view.animation.DecelerateInterpolator(1.6f))
+            .withEndAction { if (fullScreen) bottom.visibility = View.INVISIBLE }.start()
+    }
+
+    private fun exitFullScreen() {
+        if (!fullScreen) return
+        fullScreen = false
+        btnProfile.isFocusable = false
+        bottom.visibility = View.VISIBLE
+        (bottom as ViewGroup).descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
+        if (Fx.reduced) { bottom.alpha = 1f; bottom.translationY = 0f }
+        else bottom.animate().translationY(0f).alpha(1f).setDuration(320)
+            .setInterpolator(android.view.animation.DecelerateInterpolator(1.6f)).start()
+        if (prefs.getInt("fsUses", 0) >= 3) hint.visibility = View.GONE
+        focusShelf(shelfPos)
+    }
+
+    /** Up from the shelf enters full screen; Up again reaches the profile pill; Down or Back returns. */
+    override fun dispatchKeyEvent(e: android.view.KeyEvent): Boolean {
+        if (e.action == android.view.KeyEvent.ACTION_DOWN && !sheetOpen) {
+            val focus = currentFocus
+            when (e.keyCode) {
+                android.view.KeyEvent.KEYCODE_DPAD_UP -> when {
+                    !fullScreen && focus != null && rvDock.findContainingItemView(focus) != null -> { enterFullScreen(); return true }
+                    fullScreen -> { btnProfile.isFocusable = true; btnProfile.requestFocus(); return true }
+                }
+                android.view.KeyEvent.KEYCODE_DPAD_DOWN -> if (fullScreen) { exitFullScreen(); return true }
+                android.view.KeyEvent.KEYCODE_DPAD_CENTER, android.view.KeyEvent.KEYCODE_ENTER ->
+                    if (fullScreen && focus !== btnProfile) { exitFullScreen(); return true }
+            }
+        }
+        return super.dispatchKeyEvent(e)
     }
 
     private fun View.bind(action: () -> Unit) {
@@ -219,13 +298,15 @@ class MainActivity : Activity() {
         super.onNewIntent(intent)
         if (intent.hasCategory(Intent.CATEGORY_HOME)) {
             if (sheetOpen) closeSheet()
+            shelfPos = 0
+            exitFullScreen()
             focusShelf(0)
         }
     }
 
     // Back closes the sheet; a launcher has nowhere else to go back to.
     @Suppress("OVERRIDE_DEPRECATION")
-    override fun onBackPressed() { closeSheet() }
+    override fun onBackPressed() { if (fullScreen) exitFullScreen() else closeSheet() }
 
     private companion object {
         const val ROTATE_MS = 10 * 60 * 1000L

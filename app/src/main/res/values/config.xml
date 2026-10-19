@@ -10,6 +10,9 @@
         <item>com.android.vending</item>
     </string-array>
 
+    <!-- Letter shown in the profile circle when assets/profile.jpg is absent. -->
+    <string name="profile_initial">R</string>
+
     <!-- Packages kept out of both rows. Fill from `adb shell pm list packages` on the box. -->
     <string-array name="hidden_packages" />
 </resources>
