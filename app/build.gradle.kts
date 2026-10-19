@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -15,12 +17,25 @@ android {
         versionName = "0.1.0"
     }
 
+    // Release key lives outside the repo; without it the build falls back to the debug key.
+    val signingDir = File(System.getenv("LUCERRA_SIGNING_DIR") ?: "${System.getProperty("user.home")}/.lucerra-signing")
+    val signingProps = File(signingDir, "keystore.properties")
+    if (signingProps.exists()) {
+        val p = Properties().apply { signingProps.inputStream().use { load(it) } }
+        signingConfigs.create("release") {
+            storeFile = File(signingDir, p.getProperty("storeFile"))
+            storePassword = p.getProperty("storePassword")
+            keyAlias = p.getProperty("keyAlias")
+            keyPassword = p.getProperty("keyPassword")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
     }
 

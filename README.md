@@ -22,6 +22,8 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 Edit `app/src/main/res/values/config.xml` to change the Favorites row or hide packages.
 
+For a release APK run `./gradlew assembleRelease`. It signs with `keystore.properties` from `~/.lucerra-signing/` (or `$LUCERRA_SIGNING_DIR`); if that file is missing, it falls back to the debug key so anyone can build.
+
 ## License
 
 GPL-3.0, see [LICENSE](LICENSE). Forks must stay open source under the same licence. The name "Lucerra" and its logo are not licensed for use on forks. The wallpapers are NASA public-domain photos, credited in `WALLPAPER-CREDITS.md`.
