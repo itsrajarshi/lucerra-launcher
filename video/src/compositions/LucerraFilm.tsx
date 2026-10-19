@@ -1,0 +1,49 @@
+import React, {useEffect, useState} from 'react';
+import {AbsoluteFill, Audio, continueRender, delayRender, interpolate, Sequence, staticFile} from 'remotion';
+import {EndCardScene} from '../scenes/EndCardScene';
+import {ExperienceScene} from '../scenes/ExperienceScene';
+import {OpeningScene} from '../scenes/OpeningScene';
+import {ProductRevealScene} from '../scenes/ProductRevealScene';
+import {TransformationScene} from '../scenes/TransformationScene';
+import '../styles/global.css';
+import {C} from '../styles/tokens';
+import {SCENES, TOTAL} from '../utils/timing';
+
+/** Waits for the bundled Outfit weights so no frame renders with a fallback font. */
+const useFonts = () => {
+  const [handle] = useState(() => delayRender('fonts'));
+  useEffect(() => {
+    Promise.all([300, 400, 500, 600].map((w) => document.fonts.load(`${w} 40px Outfit`)))
+      .catch(() => undefined)
+      .then(() => continueRender(handle));
+  }, [handle]);
+};
+
+export const LucerraFilm: React.FC = () => {
+  useFonts();
+  const S = SCENES;
+  // Master fade-out over the last second of the mix.
+  const master = (f: number) => interpolate(f, [TOTAL - 30, TOTAL], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  return (
+    <AbsoluteFill style={{background: C.bg}}>
+      <Sequence from={S.opening.from} durationInFrames={S.opening.dur} name="1 Problem">
+        <OpeningScene />
+      </Sequence>
+      <Sequence from={S.transform.from} durationInFrames={S.transform.dur} name="2 Turning point">
+        <TransformationScene />
+      </Sequence>
+      <Sequence from={S.reveal.from} durationInFrames={S.reveal.dur} name="3 Product reveal">
+        <ProductRevealScene />
+      </Sequence>
+      <Sequence from={S.experience.from} durationInFrames={S.experience.dur} name="4 Experience">
+        <ExperienceScene />
+      </Sequence>
+      <Sequence from={S.end.from} durationInFrames={S.end.dur} name="5 Final frame">
+        <EndCardScene />
+      </Sequence>
+
+      <Audio src={staticFile('audio/bed.wav')} volume={(f) => 0.9 * master(f)} />
+      <Audio src={staticFile('audio/fx.wav')} volume={(f) => 0.85 * master(f)} />
+    </AbsoluteFill>
+  );
+};

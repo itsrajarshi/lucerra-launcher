@@ -1,0 +1,25 @@
+{
+  "name": "lucerra-film",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lucerra Launcher product film (Remotion)",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts LucerraFilm out/lucerra-film.mp4",
+    "still": "remotion still src/index.ts LucerraFilm",
+    "audio": "python tools/make_audio.py",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fontsource/outfit": "5.3.0",
+    "@remotion/cli": "4.0.536",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.536"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "7.0.2"
+  }
+}
