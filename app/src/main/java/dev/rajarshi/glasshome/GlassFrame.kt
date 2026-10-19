@@ -2,6 +2,8 @@ package dev.rajarshi.glasshome
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapShader
+import android.graphics.Matrix
 import android.graphics.Canvas
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
@@ -28,10 +30,12 @@ class GlassFrame @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = 
     private val src = Rect()
     private val dst = Rect()
 
-    private val slice = Paint(Paint.FILTER_BITMAP_FLAG).apply {
+    private val shaderMatrix = Matrix()
+    private val slice = Paint(Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG).apply {
         colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(1.35f) })
     }
     private val tint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val solid = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xF01C2030.toInt() }
     private val rim = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 1.2f * density
@@ -61,18 +65,15 @@ class GlassFrame @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = 
     }
 
     override fun onDraw(canvas: Canvas) {
-        val count = canvas.save()
-        canvas.clipPath(path)
         val blur = Wallpapers.curBlur
         if (Fx.reduced || blur == null) {
-            canvas.drawColor(0xF01C2030.toInt())
+            canvas.drawPath(path, solid)
         } else {
             getLocationOnScreen(loc)
             Wallpapers.prevBlur?.let { drawSlice(canvas, it, 255) }
             drawSlice(canvas, blur, (Wallpapers.fade * 255).toInt())
             canvas.drawPath(path, tint)
         }
-        canvas.restoreToCount(count)
         canvas.drawPath(path, rim)
     }
 
@@ -85,7 +86,10 @@ class GlassFrame @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = 
             (loc[0] + width) * bmp.width / sw,
             (loc[1] + height) * bmp.height / sh,
         )
+        // Filled through the path (anti-aliased) rather than clipped: a hardware clip left a 1px seam on the capsule edge.
+        shaderMatrix.setRectToRect(RectF(src), RectF(dst), Matrix.ScaleToFit.FILL)
+        slice.shader = BitmapShader(bmp, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP).also { it.setLocalMatrix(shaderMatrix) }
         slice.alpha = a
-        canvas.drawBitmap(bmp, src, dst, slice)
+        canvas.drawPath(path, slice)
     }
 }
