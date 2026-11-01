@@ -14,6 +14,7 @@ import android.graphics.RectF
 import android.graphics.Rect
 import android.graphics.Shader
 import android.util.AttributeSet
+import android.view.View
 import android.widget.FrameLayout
 
 /**
@@ -31,15 +32,19 @@ class GlassFrame @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = 
     private val dst = Rect()
 
     private val shaderMatrix = Matrix()
-    private val slice = Paint(Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG).apply {
-        colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(1.35f) })
-    }
+    private val slice = Paint(Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG)
     private val tint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val solid = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xF01C2030.toInt() }
     private val rim = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 1.2f * density
     }
+
+    /**
+     * A view that slides this glass around (the All Apps sheet). Its slide is subtracted from where the glass samples
+     * the wallpaper, so the frosted texture rides with the panel and nothing has to repaint while it moves.
+     */
+    var slidingParent: View? = null
 
     init { setWillNotDraw(false) }
 
@@ -70,6 +75,7 @@ class GlassFrame @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = 
             canvas.drawPath(path, solid)
         } else {
             getLocationOnScreen(loc)
+            slidingParent?.let { loc[1] -= it.translationY.toInt() }
             Wallpapers.prevBlur?.let { drawSlice(canvas, it, 255) }
             drawSlice(canvas, blur, (Wallpapers.fade * 255).toInt())
             canvas.drawPath(path, tint)

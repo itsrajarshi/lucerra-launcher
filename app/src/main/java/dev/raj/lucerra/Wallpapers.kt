@@ -14,6 +14,7 @@ import android.graphics.ColorMatrixColorFilter
 import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.RadialGradient
+import android.graphics.RectF
 import android.graphics.Shader
 import android.os.Handler
 import android.os.Looper
@@ -77,9 +78,10 @@ object Wallpapers {
     fun next(animate: Boolean) {
         val i = index++
         worker.execute {
-            val sharp = photos.takeIf { it.isNotEmpty() }?.let { decode(it[i % it.size]) }
+            val raw = photos.takeIf { it.isNotEmpty() }?.let { decode(it[i % it.size]) }
                 ?: render(palettes[i % palettes.size], System.nanoTime())
-            val blur = blur(sharp)
+            val blur = blur(raw)
+            val sharp = finish(raw)
             main.post { swapIn(sharp, blur, animate) }
         }
     }
@@ -193,6 +195,28 @@ object Wallpapers {
         return bmp
     }
 
+    /**
+     * The one bitmap the screen draws every frame: at most 1280x720 (the TV scales it up, and the photo is graded
+     * dark and soft anyway, so it costs a third less GPU bandwidth than 1080p), with the top and bottom scrim
+     * baked in so the screen needs one pass instead of two.
+     */
+    private fun finish(src: Bitmap): Bitmap {
+        val w = minOf(src.width, 1280)
+        val h = w * 9 / 16
+        val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val c = Canvas(out)
+        c.drawBitmap(src, null, RectF(0f, 0f, w.toFloat(), h.toFloat()), Paint(Paint.FILTER_BITMAP_FLAG))
+        c.drawRect(0f, 0f, w.toFloat(), h.toFloat(), Paint().apply {
+            shader = LinearGradient(
+                0f, 0f, 0f, h.toFloat(),
+                intArrayOf(0xB30B0F14.toInt(), 0x000B0F14, 0x000B0F14, 0x400B0F14, 0xB80B0F14.toInt()),
+                floatArrayOf(0f, 0.26f, 0.5f, 0.68f, 1f), Shader.TileMode.CLAMP,
+            )
+        })
+        src.recycle()
+        return out
+    }
+
     /** Repeated halving with bilinear filtering; about 60x34, plenty for a frosted look. */
     private fun blur(src: Bitmap): Bitmap {
         var b = src
@@ -201,7 +225,11 @@ object Wallpapers {
             if (b !== src) b.recycle()
             b = next
         }
-        return b
+        // glass wants a livelier colour than the photo: saturate once here instead of on every frame of every pane
+        val out = Bitmap.createBitmap(b.width, b.height, Bitmap.Config.ARGB_8888)
+        Canvas(out).drawBitmap(b, 0f, 0f, Paint().apply { colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(1.35f) }) })
+        if (b !== src) b.recycle()
+        return out
     }
 
     private const val TARGET_LUMA = 0.24

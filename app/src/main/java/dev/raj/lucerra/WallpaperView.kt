@@ -11,21 +11,12 @@ import android.view.View
 
 class WallpaperView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null) : View(ctx, attrs) {
     private val paint = Paint(Paint.FILTER_BITMAP_FLAG)
-    private val scrim = Paint()
     private val dst = RectF()
 
     override fun onAttachedToWindow() { super.onAttachedToWindow(); Wallpapers.attach(this) }
     override fun onDetachedFromWindow() { Wallpapers.detach(this); super.onDetachedFromWindow() }
 
-    override fun onSizeChanged(w: Int, h: Int, ow: Int, oh: Int) {
-        dst.set(0f, 0f, w.toFloat(), h.toFloat())
-        // Darken top and bottom so clock and dock stay legible on any wallpaper.
-        scrim.shader = LinearGradient(
-            0f, 0f, 0f, h.toFloat(),
-            intArrayOf(0xB30B0F14.toInt(), 0x000B0F14, 0x000B0F14, 0x400B0F14, 0xB80B0F14.toInt()),
-            floatArrayOf(0f, 0.26f, 0.5f, 0.68f, 1f), Shader.TileMode.CLAMP,
-        )
-    }
+    override fun onSizeChanged(w: Int, h: Int, ow: Int, oh: Int) { dst.set(0f, 0f, w.toFloat(), h.toFloat()) }
 
     override fun onDraw(canvas: Canvas) {
         canvas.drawColor(0xFF0B0F14.toInt())
@@ -35,6 +26,5 @@ class WallpaperView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet?
             canvas.drawBitmap(it, null, dst, paint)
             paint.alpha = 255
         }
-        canvas.drawRect(dst, scrim)
     }
 }

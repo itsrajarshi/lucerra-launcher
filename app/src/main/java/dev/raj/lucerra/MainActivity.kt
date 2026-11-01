@@ -85,6 +85,7 @@ class MainActivity : Activity() {
         home = findViewById(R.id.home)
         sheet = findViewById(R.id.sheet)
         sheetGlass = findViewById(R.id.sheetGlass)
+        (sheetGlass as GlassFrame).slidingParent = sheet
         rvDock = findViewById(R.id.rvDock)
         rvPinned = findViewById(R.id.rvPinned)
         rvGrid = findViewById(R.id.rvGrid)
@@ -381,8 +382,7 @@ class MainActivity : Activity() {
         sheet.translationY = from
         sheetSpring = SpringAnimation(sheet, DynamicAnimation.TRANSLATION_Y, target).apply {
             spring = SpringForce(target).setDampingRatio(1f).setStiffness(320f)
-            // Glass samples the wallpaper by screen position, so repaint it while it moves.
-            addUpdateListener { _, _, _ -> sheetGlass.invalidate() }
+            // The glass rides with the sheet (see GlassFrame.slidingParent), so sliding it never repaints the glass.
             addEndListener { _, _, _, _ ->
                 if (sheetOpen) home.visibility = View.INVISIBLE else sheet.visibility = View.GONE
                 sheetGlass.invalidate()
