@@ -43,6 +43,7 @@ class MainActivity : Activity() {
     private lateinit var rvGrid: RecyclerView
     private lateinit var appName: TextView
     private lateinit var greeting: TextView
+    private lateinit var onboarding: Onboarding
 
     private var pinnedItems = emptyList<AppItem>()
     private var otherItems = emptyList<AppItem>()
@@ -106,6 +107,7 @@ class MainActivity : Activity() {
             }
             clipToOutline = true
         }
+        onboarding = Onboarding(this) { loadProfile(); updateGreeting(); lockHome(false); focusShelf(0) }
         loadProfile()
         Wallpapers.init(this)
         // Rebuilt after the system freed us behind a heavy app: keep the wallpaper, no hard cut.
@@ -113,11 +115,33 @@ class MainActivity : Activity() {
         updateGreeting()
         reload()
         if (intent.getBooleanExtra(EXTRA_ALL_APPS, false)) openSheet()
+        if (!Profile.done(this)) beginOnboarding(tour = false)
     }
 
-    /** assets/profile.jpg (square, any size) if present, else the configured initial. */
+    private fun beginOnboarding(tour: Boolean) {
+        if (sheetOpen) closeSheet()
+        lockHome(true)
+        onboarding.start(tour)
+    }
+
+    /** While the welcome flow is up, Home must not take focus or key presses. */
+    private fun lockHome(on: Boolean) {
+        home.descendantFocusability = if (on) ViewGroup.FOCUS_BLOCK_DESCENDANTS else ViewGroup.FOCUS_BEFORE_DESCENDANTS
+    }
+
+    /** The saved name and colour; assets/profile.jpg (square) still wins as a photo if one was shipped and no profile was set. */
     private fun loadProfile() {
-        findViewById<TextView>(R.id.avatarInitial).text = getString(R.string.profile_initial)
+        val name = Profile.name(this)
+        findViewById<TextView>(R.id.avatarInitial).apply {
+            text = name.take(1).uppercase().ifEmpty { getString(R.string.profile_initial) }
+            if (Profile.done(this@MainActivity)) {
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    shape = android.graphics.drawable.GradientDrawable.OVAL
+                    setColor(Profile.COLORS[Profile.colorIndex(this@MainActivity)])
+                }
+            }
+        }
+        if (Profile.done(this)) { findViewById<ImageView>(R.id.avatar).visibility = View.GONE; return }
         try {
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             assets.open("profile.jpg").use { BitmapFactory.decodeStream(it, null, bounds) }
@@ -138,6 +162,7 @@ class MainActivity : Activity() {
 
     /** Up from the shelf opens All Apps. */
     override fun dispatchKeyEvent(e: KeyEvent): Boolean {
+        if (onboarding.showing && e.keyCode == KeyEvent.KEYCODE_ALL_APPS) return true
         if (e.action == KeyEvent.ACTION_DOWN && e.keyCode == KeyEvent.KEYCODE_DPAD_UP && !sheetOpen) {
             val focus = currentFocus
             if (focus != null && rvDock.findContainingItemView(focus) != null) { openSheet(); return true }
@@ -169,13 +194,15 @@ class MainActivity : Activity() {
 
     private fun updateGreeting() {
         val h = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-        greeting.setText(
+        val hello = getString(
             when {
                 h < 12 -> R.string.good_morning
                 h < 17 -> R.string.good_afternoon
                 else -> R.string.good_evening
             },
         )
+        val name = Profile.name(this)
+        greeting.text = if (name.isEmpty()) hello else "$hello, ${name.uppercase()}"
     }
 
     private fun reload() {
@@ -215,7 +242,7 @@ class MainActivity : Activity() {
         }
         d.setContentView(R.layout.dialog_pin_menu)
         d.findViewById<TextView>(R.id.menuTitle).text = title
-        listOf(R.id.menuLeft, R.id.menuRight, R.id.menuRemove).forEachIndexed { n, id ->
+        listOf(R.id.menuLeft, R.id.menuRight, R.id.menuRemove, R.id.menuExtra, R.id.menuExtra2).forEachIndexed { n, id ->
             val v = d.findViewById<TextView>(id)
             val row = rows.getOrNull(n)
             if (row == null) { v.visibility = View.GONE; return@forEachIndexed }
@@ -258,6 +285,8 @@ class MainActivity : Activity() {
                 if (svc != null) svc.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_POWER_DIALOG)
                 else Toast.makeText(this, R.string.power_needs_service, Toast.LENGTH_SHORT).show()
             },
+            getString(R.string.edit_profile) to { beginOnboarding(tour = false) },
+            getString(R.string.replay_tour) to { beginOnboarding(tour = true) },
         ),
         topRight = true,
     )
@@ -436,7 +465,7 @@ class MainActivity : Activity() {
 
     // Back closes All Apps; a launcher has nowhere else to go back to.
     @Suppress("OVERRIDE_DEPRECATION")
-    override fun onBackPressed() { closeSheet() }
+    override fun onBackPressed() { if (onboarding.showing) onboarding.onBack() else closeSheet() }
 
     companion object {
         const val EXTRA_ALL_APPS = "open_all_apps"

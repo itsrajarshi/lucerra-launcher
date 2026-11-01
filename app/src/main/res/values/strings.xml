@@ -26,4 +26,26 @@
     <string name="previous">Previous</string>
     <string name="play_pause">Play or pause</string>
     <string name="next">Next</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="replay_tour">Replay the tour</string>
+    <string name="ob_back">Back</string>
+    <string name="ob_next">Next</string>
+    <string name="ob_skip">Skip</string>
+    <string name="ob_start">Get started</string>
+    <string name="ob_done">Start using Lucerra</string>
+    <string name="ob_name_hint">Your name</string>
+    <string name="ob_welcome_title">Welcome to Lucerra</string>
+    <string name="ob_welcome_body">A calm, ad-free home for your TV. Two quick questions, then a short tour.</string>
+    <string name="ob_name_title">What should we call you?</string>
+    <string name="ob_name_body">Used for the greeting on Home. It stays on this TV and is never sent anywhere.</string>
+    <string name="ob_icon_title">Pick your icon</string>
+    <string name="ob_icon_body">Choose a colour for your profile circle, top right on Home.</string>
+    <string name="ob_t1_title">Press Up for all apps</string>
+    <string name="ob_t1_body">From the shelf on Home, press Up on the remote to open every app on your TV. Back closes it.</string>
+    <string name="ob_t2_title">Hold OK to arrange</string>
+    <string name="ob_t2_body">Hold OK on any app to pin it to Home, move it left or right, remove it or uninstall it.</string>
+    <string name="ob_t3_title">The apps button</string>
+    <string name="ob_t3_body">To open All Apps from inside any app, turn on the Lucerra accessibility service in Settings. It reads no other input.</string>
+    <string name="ob_done_title">You are all set</string>
+    <string name="ob_done_body">Your shelf is ready. Enjoy the calm.</string>
 </resources>

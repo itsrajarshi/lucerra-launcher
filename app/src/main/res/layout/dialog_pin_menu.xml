@@ -31,4 +31,14 @@
         android:id="@+id/menuRemove"
         style="@style/MenuRow"
         android:text="@string/remove_from_home" />
+
+    <TextView
+        android:id="@+id/menuExtra"
+        style="@style/MenuRow"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/menuExtra2"
+        style="@style/MenuRow"
+        android:visibility="gone" />
 </LinearLayout>

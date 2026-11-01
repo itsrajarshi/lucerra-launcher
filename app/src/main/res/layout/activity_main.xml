@@ -369,4 +369,6 @@
                 </LinearLayout>
         </dev.raj.lucerra.GlassFrame>
     </LinearLayout>
+
+    <include layout="@layout/onboarding" />
 </FrameLayout>
