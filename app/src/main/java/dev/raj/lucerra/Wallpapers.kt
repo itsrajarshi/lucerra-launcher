@@ -8,6 +8,9 @@ import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.RadialGradient
@@ -54,14 +57,17 @@ object Wallpapers {
     fun detach(v: View) { views.remove(v) }
 
     private var assets: AssetManager? = null
-    private var photos: List<String> = emptyList()
+    @Volatile private var photos: List<String> = emptyList()
 
-    /** Picks up 1080p scenery from assets/wallpapers; with none there, falls back to generated art. */
+    /**
+     * The bundled 1080p scenery plus the photos [WallpaperFetcher] has downloaded; with none of either,
+     * falls back to generated art. Rescanned on every start. Downloaded files are stored as full paths.
+     */
     fun init(ctx: Context) {
         assets = ctx.applicationContext.assets
-        photos = (assets!!.list("wallpapers") ?: emptyArray())
-            .filter { it.endsWith(".jpg") || it.endsWith(".jpeg") || it.endsWith(".png") }
-            .shuffled()
+        val bundled = (assets!!.list("wallpapers") ?: emptyArray()).filter { it.endsWith(".jpg") }
+        val fetched = WallpaperFetcher.dir(ctx).listFiles()?.filter { it.name.endsWith(".jpg") }?.map { it.absolutePath }.orEmpty()
+        photos = (bundled + fetched).shuffled()
     }
 
     /** Render the next wallpaper off the main thread, then crossfade to it. */
@@ -75,11 +81,43 @@ object Wallpapers {
         }
     }
 
-    /** Full 1920x1080, no downscale: the photo is the whole point of the screen. */
+    /** At most ~1080p: the photo is the whole point of the screen, but a 4K upload must not eat the heap. */
     private fun decode(name: String): Bitmap? = try {
-        assets!!.open("wallpapers/$name").use { BitmapFactory.decodeStream(it) }?.let(::cropTo169)
+        val open = { if (name.startsWith("/")) java.io.FileInputStream(name) else assets!!.open("wallpapers/$name") }
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        open().use { BitmapFactory.decodeStream(it, null, bounds) }
+        var sample = 1
+        while (bounds.outWidth / (sample * 2) >= 1920) sample *= 2
+        val opts = BitmapFactory.Options().apply { inSampleSize = sample }
+        open().use { BitmapFactory.decodeStream(it, null, opts) }?.let(::cropTo169)?.let(::darken)
     } catch (e: Exception) {
         null
+    }
+
+    /**
+     * Dark-mode grade: every screen UI here is white text on glass, so bright photos are pulled down to a
+     * mean luminance of about 0.24 (never lifted, never below 0.5x), and highlights are rolled off.
+     */
+    private fun darken(src: Bitmap): Bitmap {
+        val small = Bitmap.createScaledBitmap(src, 32, 18, true)
+        var sum = 0.0
+        for (y in 0 until small.height) for (x in 0 until small.width) {
+            val c = small.getPixel(x, y)
+            sum += (0.2126 * Color.red(c) + 0.7152 * Color.green(c) + 0.0722 * Color.blue(c)) / 255.0
+        }
+        small.recycle()
+        val mean = sum / (32 * 18)
+        val k = (TARGET_LUMA / mean.coerceAtLeast(0.01)).coerceIn(0.5, 1.0).toFloat()
+        if (k >= 0.995f) return src
+        val out = Bitmap.createBitmap(src.width, src.height, Bitmap.Config.ARGB_8888)
+        val paint = Paint(Paint.FILTER_BITMAP_FLAG).apply {
+            colorFilter = ColorMatrixColorFilter(ColorMatrix().apply {
+                setScale(k, k, k * 1.02f, 1f) // a hair cooler than neutral, which reads calmer at night
+            })
+        }
+        Canvas(out).drawBitmap(src, 0f, 0f, paint)
+        src.recycle()
+        return out
     }
 
     /** Centre-crop so photos of any aspect fill 16:9 without stretching. */
@@ -162,6 +200,8 @@ object Wallpapers {
         }
         return b
     }
+
+    private const val TARGET_LUMA = 0.24
 
     private fun alpha(color: Int, a: Int) = (color and 0x00FFFFFF) or (a shl 24)
 }

@@ -20,12 +20,17 @@
     <string name="key_service_desc">Lets the remote apps button open the Lucerra All Apps screen. It reads no other input.</string>
     <string name="quick_settings">Quick settings</string>
     <string name="add_to_home">Add to Home</string>
+    <string name="app_info">App info</string>
     <string name="uninstall">Uninstall</string>
     <string name="power">Power</string>
     <string name="power_needs_service">Turn on the Lucerra accessibility service first</string>
     <string name="previous">Previous</string>
     <string name="play_pause">Play or pause</string>
     <string name="next">Next</string>
+    <string name="wp_on">Wallpaper updates: on</string>
+    <string name="wp_off">Wallpaper updates: off</string>
+    <string name="wp_on_msg">Fresh wallpapers daily from NASA</string>
+    <string name="wp_off_msg">Wallpapers stay as they are</string>
     <string name="edit_profile">Edit profile</string>
     <string name="replay_tour">Replay the tour</string>
     <string name="ob_back">Back</string>

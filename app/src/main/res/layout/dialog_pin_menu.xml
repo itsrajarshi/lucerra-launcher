@@ -41,4 +41,9 @@
         android:id="@+id/menuExtra2"
         style="@style/MenuRow"
         android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/menuExtra3"
+        style="@style/MenuRow"
+        android:visibility="gone" />
 </LinearLayout>

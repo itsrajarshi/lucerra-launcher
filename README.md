@@ -20,7 +20,7 @@ NASA photo. Nothing else.
 - **All Apps** is one press of Up away.
 
 ![All Apps](docs/images/apps.jpg)
-- **No ads, no recommendations, no network permission, no background services.**
+- **No ads, no recommendations, no tracking, no background services. The only network use is a daily wallpaper download from NASA, which you can switch off.**
 - **Now Playing.** A glass widget shows the current track from Spotify or any app with a media session.
 - **Remote apps button.** The key the system sends to TV Settings opens All Apps instead.
 - **Light.** About 47 MB of memory and about 3% janky frames while scrolling, measured on a Mi Box 4K.
@@ -82,7 +82,7 @@ overwrites the other allowed listeners and was not picked up by the system.
 - Favourites are stored in app preferences and survive reboots.
 - To change the default favourites or hide packages, edit `app/src/main/res/values/config.xml`.
 - To show your photo in the clock pill, add a square `app/src/main/assets/profile.jpg` (otherwise the initial from `profile_initial` in `config.xml`).
-- Six scenery photos live in `app/src/main/assets/wallpapers/`. Drop more 1920x1080 JPEGs there; they crossfade every 10 minutes.
+- Six scenery photos live in `app/src/main/assets/wallpapers/`. Once a day, Lucerra also downloads up to three fresh photos from the [NASA Image and Video Library](https://images.nasa.gov) (it keeps the newest 15) and dims every wallpaper for dark rooms. Nothing about you or your TV is sent. Turn it off in the clock menu: Wallpaper updates.
 
 ## Build from source
 

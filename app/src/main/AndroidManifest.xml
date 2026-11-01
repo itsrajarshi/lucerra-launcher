@@ -4,7 +4,10 @@
     <uses-feature android:name="android.software.leanback" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
-    <!-- Needed on Android 11+ to list the apps installed on the box. No network permission, ever. -->
+    <!-- Only used to download the daily wallpapers from images.nasa.gov; nothing about the user is sent. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Needed on Android 11+ to list the apps installed on the box. -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
     <application

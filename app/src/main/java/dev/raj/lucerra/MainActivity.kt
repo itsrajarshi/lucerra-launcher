@@ -242,10 +242,11 @@ class MainActivity : Activity() {
         }
         d.setContentView(R.layout.dialog_pin_menu)
         d.findViewById<TextView>(R.id.menuTitle).text = title
-        listOf(R.id.menuLeft, R.id.menuRight, R.id.menuRemove, R.id.menuExtra, R.id.menuExtra2).forEachIndexed { n, id ->
+        listOf(R.id.menuLeft, R.id.menuRight, R.id.menuRemove, R.id.menuExtra, R.id.menuExtra2, R.id.menuExtra3).forEachIndexed { n, id ->
             val v = d.findViewById<TextView>(id)
             val row = rows.getOrNull(n)
             if (row == null) { v.visibility = View.GONE; return@forEachIndexed }
+            v.visibility = View.VISIBLE
             v.text = row.first
             v.setOnClickListener { d.dismiss(); row.second() }
         }
@@ -262,14 +263,17 @@ class MainActivity : Activity() {
             if (i < pinnedItems.size - 1) add(getString(R.string.move_right) to act { AppRepository.movePin(this@MainActivity, app.pkg, 1) })
             add(getString(R.string.remove_from_home) to act { AppRepository.togglePin(this@MainActivity, app.pkg) })
         }
-        showMenu(app.label, rows + uninstallRow(app))
+        showMenu(app.label, rows + infoRow(app) + uninstallRow(app))
     }
 
     /** Hold OK on an app that is not a favourite: add it to Home, or uninstall it. */
     private fun gridMenu(app: AppItem) = showMenu(
         app.label,
-        listOf(getString(R.string.add_to_home) to { togglePin(app) }, uninstallRow(app)),
+        listOf(getString(R.string.add_to_home) to { togglePin(app) }, infoRow(app), uninstallRow(app)),
     )
+
+    private fun infoRow(app: AppItem) =
+        getString(R.string.app_info) to { open(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.parse("package:" + app.pkg))) }
 
     private fun uninstallRow(app: AppItem) =
         getString(R.string.uninstall) to { open(Intent(Intent.ACTION_DELETE, android.net.Uri.parse("package:" + app.pkg))) }
@@ -284,6 +288,12 @@ class MainActivity : Activity() {
                 val svc = KeyService.instance
                 if (svc != null) svc.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_POWER_DIALOG)
                 else Toast.makeText(this, R.string.power_needs_service, Toast.LENGTH_SHORT).show()
+            },
+            getString(if (WallpaperFetcher.enabled(this)) R.string.wp_on else R.string.wp_off) to {
+                val on = !WallpaperFetcher.enabled(this)
+                WallpaperFetcher.setEnabled(this, on)
+                Toast.makeText(this, if (on) R.string.wp_on_msg else R.string.wp_off_msg, Toast.LENGTH_SHORT).show()
+                if (on) WallpaperFetcher.refreshIfDue(this)
             },
             getString(R.string.edit_profile) to { beginOnboarding(tour = false) },
             getString(R.string.replay_tour) to { beginOnboarding(tour = true) },
@@ -440,6 +450,7 @@ class MainActivity : Activity() {
         registerReceiver(packageReceiver, f)
         updateGreeting()
         startHint()
+        WallpaperFetcher.refreshIfDue(this)
         handler.postDelayed(rotate, ROTATE_MS)
     }
 

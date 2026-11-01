@@ -1,6 +1,6 @@
 # Wallpaper credits
 
-All six wallpapers are photographs taken by NASA astronauts aboard the International Space Station, downloaded from the NASA Image and Video Library (https://images.nasa.gov) at 1920px wide.
+The six bundled wallpapers, and the daily downloads from images.nasa.gov, are photographs taken by NASA astronauts aboard the International Space Station, downloaded from the NASA Image and Video Library (https://images.nasa.gov) at 1920px wide.
 
 Works of the US government are not subject to copyright in the United States, and NASA's media guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/) allow commercial use provided the material does not imply NASA endorses the product. Lucerra Launcher is not affiliated with or endorsed by NASA, and does not use any NASA logo or insignia.
 
