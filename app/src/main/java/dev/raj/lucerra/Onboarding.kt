@@ -49,6 +49,10 @@ class Onboarding(private val a: Activity, private val onFinish: () -> Unit) {
     val showing get() = root.visibility == View.VISIBLE
 
     init {
+        icon.outlineProvider = object : android.view.ViewOutlineProvider() {
+            override fun getOutline(v: View, o: android.graphics.Outline) = o.setRoundRect(0, 0, v.width, v.height, 14 * dp)
+        }
+        icon.clipToOutline = true
         repeat(STEPS) {
             dots.addView(View(a).apply {
                 layoutParams = LinearLayout.LayoutParams((8 * dp).toInt(), (8 * dp).toInt()).apply { marginStart = (4 * dp).toInt(); marginEnd = (4 * dp).toInt() }
@@ -60,11 +64,13 @@ class Onboarding(private val a: Activity, private val onFinish: () -> Unit) {
                 gravity = Gravity.CENTER
                 setTextColor(0xFFFFFFFF.toInt()); textSize = 18f
                 isFocusable = true; isClickable = true
+                nextFocusDownId = R.id.obNext
                 setOnClickListener { picked = n; paintSwatches() }
                 setOnFocusChangeListener { _, f -> if (f) { picked = n; paintSwatches() } }
             }
             swatches.add(v); avatars.addView(v)
         }
+        nameField.nextFocusDownId = R.id.obNext
         next.setOnClickListener { go(1) }
         back.setOnClickListener { go(-1) }
         skip.setOnClickListener { finish() }
@@ -127,7 +133,7 @@ class Onboarding(private val a: Activity, private val onFinish: () -> Unit) {
         back.visibility = if (step == (if (tourOnly) TOUR_FIRST else 0)) View.GONE else View.VISIBLE
         skip.visibility = if (step == STEPS - 1) View.GONE else View.VISIBLE
         next.setText(when (step) { 0 -> R.string.ob_start; STEPS - 1 -> R.string.ob_done; else -> R.string.ob_next })
-        (if (step == 1) nameField else next).requestFocus()
+        when (step) { 1 -> nameField; 2 -> swatches[picked]; else -> next }.requestFocus()
     }
 
     private fun initial() = nameField.text.toString().trim().take(1).uppercase().ifEmpty { a.getString(R.string.profile_initial) }
