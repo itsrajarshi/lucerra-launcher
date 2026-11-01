@@ -17,8 +17,8 @@ import kotlin.concurrent.thread
  * TV; nothing about the user or the box is sent. [Wallpapers] grades each photo dark when it decodes it.
  */
 object WallpaperFetcher {
-    private const val KEEP = 15
-    private const val PER_RUN = 3
+    private const val KEEP = 20
+    private const val PER_RUN = 6
     private const val MAX_BYTES = 14_000_000
     private const val DAY_MS = 20L * 60 * 60 * 1000
     private val QUERIES = listOf("earth at night", "city lights", "aurora", "milky way", "galaxy", "nebula", "lightning storm earth")
@@ -38,7 +38,7 @@ object WallpaperFetcher {
             try {
                 val n = fetch(app)
                 android.util.Log.i("Lucerra", "wallpaper fetch: $n new")
-                if (n > 0) Wallpapers.init(app)
+                if (n > 0) android.os.Handler(android.os.Looper.getMainLooper()).post { Wallpapers.init(app, showNewNow = true) }
             } catch (e: Exception) {
                 // offline or the service is down: try again at the next start
                 android.util.Log.i("Lucerra", "wallpaper fetch failed: $e")

@@ -62,12 +62,15 @@ object Wallpapers {
     /**
      * The bundled 1080p scenery plus the photos [WallpaperFetcher] has downloaded; with none of either,
      * falls back to generated art. Rescanned on every start. Downloaded files are stored as full paths.
+     * [showNewNow] restarts the rotation on the downloaded photos, so a fresh batch shows straight away.
      */
-    fun init(ctx: Context) {
+    fun init(ctx: Context, showNewNow: Boolean = false) {
         assets = ctx.applicationContext.assets
-        val bundled = (assets!!.list("wallpapers") ?: emptyArray()).filter { it.endsWith(".jpg") }
-        val fetched = WallpaperFetcher.dir(ctx).listFiles()?.filter { it.name.endsWith(".jpg") }?.map { it.absolutePath }.orEmpty()
-        photos = (bundled + fetched).shuffled()
+        val bundled = (assets!!.list("wallpapers") ?: emptyArray()).filter { it.endsWith(".jpg") }.shuffled()
+        val fetched = WallpaperFetcher.dir(ctx).listFiles()?.filter { it.name.endsWith(".jpg") }?.map { it.absolutePath }.orEmpty().shuffled()
+        // Downloaded photos lead; the bundled six only fill in until there are enough fresh ones.
+        photos = if (fetched.size >= FRESH_ENOUGH) fetched else fetched + bundled
+        if (showNewNow && fetched.isNotEmpty()) { index = 0; next(animate = true) }
     }
 
     /** Render the next wallpaper off the main thread, then crossfade to it. */
@@ -202,6 +205,7 @@ object Wallpapers {
     }
 
     private const val TARGET_LUMA = 0.24
+    private const val FRESH_ENOUGH = 6
 
     private fun alpha(color: Int, a: Int) = (color and 0x00FFFFFF) or (a shl 24)
 }

@@ -82,7 +82,7 @@ overwrites the other allowed listeners and was not picked up by the system.
 - Favourites are stored in app preferences and survive reboots.
 - To change the default favourites or hide packages, edit `app/src/main/res/values/config.xml`.
 - To show your photo in the clock pill, add a square `app/src/main/assets/profile.jpg` (otherwise the initial from `profile_initial` in `config.xml`).
-- Six scenery photos live in `app/src/main/assets/wallpapers/`. Once a day, Lucerra also downloads up to three fresh photos from the [NASA Image and Video Library](https://images.nasa.gov) (it keeps the newest 15) and dims every wallpaper for dark rooms. Nothing about you or your TV is sent. Turn it off in the clock menu: Wallpaper updates.
+- Six scenery photos live in `app/src/main/assets/wallpapers/`. Once a day, Lucerra also downloads up to six fresh photos from the [NASA Image and Video Library](https://images.nasa.gov) (it keeps the newest 20) and dims every wallpaper for dark rooms. Nothing about you or your TV is sent. Turn it off in the clock menu: Wallpaper updates.
 
 ## Build from source
 
