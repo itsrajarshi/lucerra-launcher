@@ -71,7 +71,7 @@ class Onboarding(private val a: Activity, private val onFinish: () -> Unit) {
             swatches.add(v); avatars.addView(v)
         }
         nameField.nextFocusDownId = R.id.obNext
-        next.setOnClickListener { go(1) }
+        next.setOnClickListener { if (step == PERM_NP || step == PERM_KEYS) openSettings(); go(1) }
         back.setOnClickListener { go(-1) }
         skip.setOnClickListener { finish() }
         nameField.setOnEditorActionListener { _, id, _ -> if (id == EditorInfo.IME_ACTION_DONE) { go(1); true } else false }
@@ -93,7 +93,31 @@ class Onboarding(private val a: Activity, private val onFinish: () -> Unit) {
         hideIme()
         if (d > 0 && step == STEPS - 1) { finish(); return }
         step = (step + d).coerceIn(0, STEPS - 1)
+        // nothing to ask for when it is already on
+        if ((step == PERM_NP && granted("enabled_notification_listeners")) || (step == PERM_KEYS && granted("enabled_accessibility_services"))) {
+            go(if (d == 0) 1 else d); return
+        }
         render()
+        slideIn(d)
+    }
+
+    /** Content eases in from the side the user is heading, each piece a beat after the last. */
+    private fun slideIn(d: Int) {
+        if (Fx.reduced) return
+        listOf<View>(icon, key, nameField, avatars, title, body).filter { it.visibility == View.VISIBLE }.forEachIndexed { n, v ->
+            v.animate().cancel()
+            v.alpha = 0f; v.translationX = d * 28 * dp
+            v.animate().alpha(1f).translationX(0f).setStartDelay(n * 35L).setDuration(300)
+                .setInterpolator(android.view.animation.DecelerateInterpolator(1.6f)).start()
+        }
+    }
+
+    private fun granted(key: String) =
+        android.provider.Settings.Secure.getString(a.contentResolver, key)?.contains(a.packageName) == true
+
+    private fun openSettings() {
+        val action = if (step == PERM_NP) "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS" else android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS
+        try { a.startActivity(android.content.Intent(action)) } catch (e: Exception) { /* no such screen on this box: Next simply moves on */ }
     }
 
     private fun finish() {
@@ -113,9 +137,11 @@ class Onboarding(private val a: Activity, private val onFinish: () -> Unit) {
             0 -> R.string.ob_welcome_title to R.string.ob_welcome_body
             1 -> R.string.ob_name_title to R.string.ob_name_body
             2 -> R.string.ob_icon_title to R.string.ob_icon_body
-            3 -> R.string.ob_t1_title to R.string.ob_t1_body
-            4 -> R.string.ob_t2_title to R.string.ob_t2_body
-            5 -> R.string.ob_t3_title to R.string.ob_t3_body
+            PERM_NP -> R.string.ob_p1_title to R.string.ob_p1_body
+            PERM_KEYS -> R.string.ob_p2_title to R.string.ob_p2_body
+            5 -> R.string.ob_t1_title to R.string.ob_t1_body
+            6 -> R.string.ob_t2_title to R.string.ob_t2_body
+            7 -> R.string.ob_t3_title to R.string.ob_t3_body
             else -> R.string.ob_done_title to R.string.ob_done_body
         }
         title.text = a.getString(t) + if (step == STEPS - 1 && name.isNotEmpty() && !tourOnly) ", $name" else ""
@@ -124,15 +150,16 @@ class Onboarding(private val a: Activity, private val onFinish: () -> Unit) {
             0 -> icon.apply { setImageResource(R.drawable.ic_launcher); visibility = View.VISIBLE }
             1 -> nameField.visibility = View.VISIBLE
             2 -> { avatars.visibility = View.VISIBLE; paintSwatches() }
-            3 -> icon.apply { setImageResource(R.drawable.ic_chevron_up); visibility = View.VISIBLE }
-            4 -> key.apply { text = "OK"; setBackgroundResource(R.drawable.avatar_bg); visibility = View.VISIBLE }
-            5 -> icon.apply { setImageResource(R.drawable.ic_apps); visibility = View.VISIBLE }
+            PERM_NP -> icon.apply { setImageResource(R.drawable.ic_note); visibility = View.VISIBLE }
+            PERM_KEYS, 7 -> icon.apply { setImageResource(R.drawable.ic_apps); visibility = View.VISIBLE }
+            5 -> icon.apply { setImageResource(R.drawable.ic_chevron_up); visibility = View.VISIBLE }
+            6 -> key.apply { text = "OK"; setBackgroundResource(R.drawable.avatar_bg); visibility = View.VISIBLE }
             else -> key.apply { text = initial(); background = circle(Profile.COLORS[picked]); visibility = View.VISIBLE }
         }
         for (i in 0 until dots.childCount) dots.getChildAt(i).background = circle(if (i == step) 0xFFFFFFFF.toInt() else 0x55FFFFFF)
         back.visibility = if (step == (if (tourOnly) TOUR_FIRST else 0)) View.GONE else View.VISIBLE
         skip.visibility = if (step == STEPS - 1) View.GONE else View.VISIBLE
-        next.setText(when (step) { 0 -> R.string.ob_start; STEPS - 1 -> R.string.ob_done; else -> R.string.ob_next })
+        next.setText(when (step) { 0 -> R.string.ob_start; PERM_NP, PERM_KEYS -> R.string.ob_allow; STEPS - 1 -> R.string.ob_done; else -> R.string.ob_next })
         when (step) { 1 -> nameField; 2 -> swatches[picked]; else -> next }.requestFocus()
     }
 
@@ -150,5 +177,5 @@ class Onboarding(private val a: Activity, private val onFinish: () -> Unit) {
 
     private fun circle(c: Int) = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(c) }
 
-    companion object { const val STEPS = 7; const val TOUR_FIRST = 3 }
+    companion object { const val STEPS = 9; const val TOUR_FIRST = 5; const val PERM_NP = 3; const val PERM_KEYS = 4 }
 }

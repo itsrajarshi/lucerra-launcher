@@ -45,6 +45,11 @@
     <string name="ob_name_body">Used for the greeting on Home. It stays on this TV and is never sent anywhere.</string>
     <string name="ob_icon_title">Pick your icon</string>
     <string name="ob_icon_body">Choose a colour for your profile circle, top right on Home.</string>
+    <string name="ob_allow">Allow in Settings</string>
+    <string name="ob_p1_title">Show what is playing</string>
+    <string name="ob_p1_body">To show the Now Playing pill for Spotify and other players, turn on Lucerra under Notification access. It reads only the track title and controls.</string>
+    <string name="ob_p2_title">Use the apps button</string>
+    <string name="ob_p2_body">To open All Apps with the apps button on your remote, from anywhere, turn on Lucerra under Accessibility. It reads no other input.</string>
     <string name="ob_t1_title">Press Up for all apps</string>
     <string name="ob_t1_body">From the shelf on Home, press Up on the remote to open every app on your TV. Back closes it.</string>
     <string name="ob_t2_title">Hold OK to arrange</string>

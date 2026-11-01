@@ -252,6 +252,20 @@ class MainActivity : Activity() {
         }
         d.show()
         d.findViewById<View>(R.id.menuLeft).takeIf { rows.isNotEmpty() }?.requestFocus()
+        popIn(d.findViewById<View>(R.id.menuTitle).parent as View, topRight)
+    }
+
+    /** The menu grows out of its corner on a spring; no bounce, so it settles rather than wobbles. */
+    private fun popIn(v: View, topRight: Boolean) {
+        if (Fx.reduced) return
+        v.post {
+            v.pivotX = if (topRight) v.width.toFloat() else v.width / 2f
+            v.pivotY = if (topRight) 0f else v.height / 2f
+            v.scaleX = 0.9f; v.scaleY = 0.9f; v.alpha = 0f
+            for (prop in listOf(DynamicAnimation.SCALE_X, DynamicAnimation.SCALE_Y, DynamicAnimation.ALPHA)) {
+                SpringAnimation(v, prop, 1f).apply { spring = SpringForce(1f).setDampingRatio(1f).setStiffness(500f) }.start()
+            }
+        }
     }
 
     /** Hold OK on a favourite: move it along the shelf, or take it off Home. */
