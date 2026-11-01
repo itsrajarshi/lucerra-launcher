@@ -80,7 +80,8 @@ class GlassFrame @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = 
             drawSlice(canvas, blur, (Wallpapers.fade * 255).toInt())
             canvas.drawPath(path, tint)
         }
-        canvas.drawPath(path, rim)
+        // the full-screen sheet has no edge to catch light: its rim would draw a stray white frame around the whole TV
+        if (radius > 0f) canvas.drawPath(path, rim)
     }
 
     private fun drawSlice(canvas: Canvas, bmp: Bitmap, a: Int) {

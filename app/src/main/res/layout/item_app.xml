@@ -8,7 +8,7 @@
     android:layout_marginBottom="4dp"
     android:background="@drawable/tile_bg"
     android:clickable="true"
-    android:clipToOutline="true"
+    android:clipToOutline="false"
     android:focusable="true"
     android:foreground="@drawable/tile_rim">
 
